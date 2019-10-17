@@ -3,87 +3,101 @@
 /*                                                              /             */
 /*   replace.c                                        .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/04/15 17:27:56 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/04/30 13:00:29 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/16 12:42:36 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
 #include "../../includes/lexeur.h"
 #include "../../includes/termcaps.h"
+#include "../../includes/alias.h"
 
-char		*env_var(t_var *env, char *str)
+void		check_spe_free(t_alias **alias, char *ret)
 {
-	t_var	*start;
-
-	start = env;
-	while (start)
-	{
-		if (ft_strcmp(start->name, str) == 0 && start->type == ENVIRONEMENT)
-		{
-			ft_strdel(&str);
-			return (start->data);
-		}
-		start = start->next;
-	}
-	ft_strdel(&str);
-	return (ft_strdup(""));
+	ft_strdel(&(*alias)->data);
+	(*alias)->data = ft_strdup(ret);
+	ft_strdel(&ret);
 }
 
-char		*make_string(char **array)
+int			check_spe(t_alias *alias, t_var *var)
 {
-	char	*res;
+	char	*tmp;
+	char	*ret;
 	int		i;
 
-	i = 0;
-	res = ft_strdup("");
-	while (array[i])
+	while (alias)
 	{
-		ft_strjoin_free(&res, array[i]);
-		if (array[i + 1])
-			ft_strjoin_free(&res, " ");
-		i++;
+		i = -1;
+		while (alias->data[++i])
+		{
+			if (alias->data[i] == '$' && alias->data[i + 1] == '_'
+			&& (i == 0 || alias->data[i - 1] != '\\'))
+			{
+				tmp = ft_strdup(ft_get_val("_", var, SPE));
+				ret = ft_strsub(alias->data, 0, i);
+				ret = ft_strjoinf(ret, tmp, 3);
+				ret = ft_strjoinf(ret, ft_strsub(alias->data, i + 2,
+				ft_strlen(alias->data)), 3);
+				check_spe_free(&alias, ret);
+			}
+		}
+		alias = alias->next;
 	}
-	return (res);
+	return (0);
 }
 
-int			remove_env_while(char ***array, t_var *var)
+int			remove_env_while(t_alias *alias, t_var *var, t_replace *replace)
 {
 	int		done;
-	int		i;
 
 	done = 0;
-	i = 0;
-	while ((*array)[i])
+	if (check_alias(alias->data, var) == 1 && alias->data[0] != '\\')
+		replace_alias(alias, var, replace);
+	check_spe(alias, var);
+	check_tok(alias, var, replace);
+	while (alias)
 	{
-		if ((*array)[i][0] == '$')
+		if (alias->data && alias->data[0] != '\'')
 		{
-			done = 1;
-			(*array)[i] = env_var(var, ft_strsub((*array)[i], 1,
-			ft_strlen((*array)[i])));
+			if (alias->data && ft_strstr(alias->data, "$") != NULL &&
+			check_backslash_var(alias->data))
+			{
+				done = 1;
+				replace_var(var, alias);
+				break ;
+			}
 		}
-		if (f_check_var_alias(var, (*array)[i]) == 1)
-		{
-			done = 1;
-			(*array)[i] = check_var_alias(var, (*array)[i]);
-		}
-		i++;
+		alias = alias->next;
 	}
 	return (done);
 }
 
-char		*remove_env(t_var *start, char *str)
+void		free_alias(t_alias *alias)
 {
-	char	**array;
-	char	*tmp;
+	t_alias *tmp;
 
-	array = ft_strsplit(str, ' '); // TODO FAIRE UN VRAI SPLIT AVEC \T ETC.
-	while (1) // TODO faire en sorte qu'on ne peut pas faire de boucle infinie comme bash on ne peut pas replace 2 fois une var.
-		if (remove_env_while(&array, start) == 0)
-			break ;
+	tmp = alias;
+	while (alias)
+	{
+		tmp = alias->next;
+		ft_strdel(&alias->data);
+		free(alias);
+		alias = tmp;
+	}
+	free(alias);
+	alias = NULL;
+}
+
+char		**start_split(t_var *start, char *str)
+{
+	char		**ar;
+
+	ar = split_space(str);
+	if (!start)
+		return (ar);
 	ft_strdel(&str);
-	tmp = make_string(array);
-	return (tmp);
+	return (ar);
 }

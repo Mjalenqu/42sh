@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/03/28 09:15:13 by mjalenqu     #+#   ##    ##    #+#       */
-/*   Updated: 2019/05/02 07:30:29 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/17 09:51:50 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -14,17 +14,23 @@
 #ifndef TERMCAPS_H
 # define TERMCAPS_H
 
-// # include "ft_printf.h"
 # include "../libft/includes/ft_str.h"
 # include "../libft/includes/ft_int.h"
 # include "../libft/includes/ft_unix.h"
+# include "../libft/includes/ft_printf.h"
+# include "../libft/includes/ft_mem.h"
+# include "../libft/includes/ft_printf_err.h"
 # include "exec.h"
 # include "check_error.h"
+# include "builtin.h"
 # include <stdio.h>
 # include <unistd.h>
 # include <term.h>
 # include <stdlib.h>
 # include <curses.h>
+# include <dirent.h>
+# include "lexeur.h"
+# include "hash.h"
 
 /*
 ** color **
@@ -62,49 +68,83 @@
 # define ALT_L    25115
 # define ALT_R    26139
 
-# define HIST	".42_history"
+# define HIST		".42_history"
+# define RESIZING	28
+# define CTRL_C		2
 
-typedef struct		s_pos
-{
-	int				act_co;
-	int				act_li;
-	int				start_li;
-	int				start_co;
-	int				max_co;
-	int				max_li;
-	int				ans_printed;
-	char			*ans;
-	char			*saved_ans;
-	int				is_complete;
-	int				was_incomplete;
-	int				len_ans;
-	int				let_nb;
-	int				let_nb_saved;
-	int				history;
-	int				history_mode;
-	int				history_loop;
-	char			*prompt;
-	int				len_prompt;
-	int				debug;
-	int				debug2;
-	int				debug3;
-	int				debug4;
-	int				debug5;
-	struct termios	old_term;
-	struct termios	my_term;
-}					t_pos;
+extern struct s_hist	**ghist;
 
-typedef struct		s_inter
+typedef struct			s_heredoc
 {
-	int				sg_quote;
-	int				db_quote;
-	int				bracket;
-	int				parenthesis;
-	int				a_quote;
-	int				db_and;
-	int				pipe;
-	int				db_pipe;
-}					t_inter;
+	char				*to_find;
+	int					current_index;
+	char				*content;
+	struct s_heredoc	*next;
+	struct s_heredoc	*prev;
+}						t_heredoc;
+
+typedef struct			s_pos
+{
+	int					act_co;
+	int					act_li;
+	int					start_li;
+	int					start_co;
+	int					max_co;
+	int					max_li;
+	int					ans_printed;
+	char				*ans;
+	char				*saved_ans;
+	int					is_complete;
+	int					was_incomplete;
+	int					len_ans;
+	int					let_nb;
+	int					let_nb_saved;
+	int					history;
+	int					alias;
+	int					history_mode;
+	int					history_loop;
+	char				*prompt;
+	int					len_prompt;
+	int					start_select;
+	int					ctrl_search_history;
+	char				*ctrl_hist_cmd;
+	int					replace_hist;
+	int					error;
+	char				*path;
+	struct termios		old_term;
+	struct termios		my_term;
+	int					is_expansion;
+	int					active_heredoc;
+	char				*ans_heredoc;
+	char				*ans_heredoc_save;
+	int					last_cmd_on_bg;
+	char				*pwd;
+	struct s_heredoc	*hdoc;
+	int					braceparam;
+}						t_pos;
+
+typedef struct			s_htab
+{
+	struct s_htab		*next;
+	struct s_htab		*prev;
+	char				*content;
+	int					content_type;
+	int					content_no;
+	int					lenght_max;
+	int					matching_index;
+}						t_htab;
+
+typedef struct			s_inter
+{
+	int					sg_quote;
+	int					db_quote;
+	int					bracket;
+	int					parenthesis;
+	int					a_quote;
+	int					db_and;
+	int					pipe;
+	int					db_pipe;
+}						t_inter;
 
 typedef struct			s_command
 {
@@ -135,106 +175,310 @@ typedef struct			s_hist
 	int					cmd_no;
 }						t_hist;
 
+typedef struct			s_ctrl_hist
+{
+	int					needle;
+	int					act_co;
+	int					act_li;
+}						t_ctrl_hist;
 
-int		get_next_line_42sh(const int fd, char **line);
-char	*termcaps42sh(char *prompt, int error, t_pos *pos, t_hist *hist);
-
-/*
-**INIT_FT_SELECT.C
-*/
-
-void				init_terminfo(t_pos *pos);
-int					init_pos(t_pos *pos, char *buf);
-void				get_start_info(char *buf, t_pos *pos);
-int					check_term(void);
-
-/*
-**CHECK_INPUT.C
-*/
-
-void				free_t_hist(t_hist *hist);
-t_hist				*check_input(char *buf, t_pos *pos, t_hist *hist);
+char					*check_path_hash(t_var **var, char *arg, int i,
+						char *ans);
+void					print_info(t_pos *pos);
+void					print_hist(t_pos *pos, t_hist *hist);
+int						got_a_wildcard(char *name);
+int						check_ans(char *str);
 
 /*
-**INPUT_IS_REMOVE_CHAR.C
+**	INIT_POS_MAIN_C
 */
 
-void				input_is_backspace(t_pos *pos);
-void				remove_char_ans(t_pos *pos);
-void				input_is_delete(t_pos *pos);
+void					main_init_pos(t_pos *pos, t_var *my_env);
 
 /*
-**INPUT_IS_PRINTABLE_CHAR.C
+** CALCUL_LINE
 */
 
-void				prompt_is_on_last_char(t_pos *pos);
-void				input_is_printable_char(t_pos *pos, char *buf);
+int						get_len_with_lines(t_pos *pos);
+int						go_to_let_nb_saved(t_pos *pos);
+int						len_of_previous_line(t_pos *pos);
+int						count_nb_line(t_pos *pos, int *j);
+int						go_to_let_nb(t_pos *pos);
 
 /*
-**ESCAPE_CODE.C
+**FT_ERRNO.C
 */
 
-t_hist				*escape_code(char *buf, t_pos *pos, t_hist *hist);
-void				left_arrow(char *buf, t_pos *pos);
-void				right_arrow(char *buf, t_pos *pos);
-int					len_of_previous_line(t_pos *pos);
+void					error_handling(t_pos *pos, char *variable, int err);
 
 /*
-** INPUT_IS_ENTRY.C
+** CHECK_ERROR_C
 */
 
-t_hist				*input_is_complete(t_pos *pos, t_hist *hist);
-t_hist				*input_is_entry(t_pos *pos, t_hist *hist, char *buf);
+int						check_term(void);
+int						check_if_process_in_bg(t_pos *pos,
+						unsigned char buf[9]);
 
 /*
-**HANDLE_ANS.C
+** CHECK_INPUT.C
 */
 
-void				prepare_to_print(t_pos *pos, char *buf);
-void				fill_char_ans(char *buf, t_pos *pos);
-void				remove_char_ans(t_pos *pos);
-int					get_len_with_lines(t_pos *pos);
+t_hist					*check_input(unsigned char *buf, t_pos *pos,
+						t_hist *hist);
 
 /*
-**HISTORY.C
+** ESCAPE_CODE
 */
 
-void				init_t_hist(t_hist *hist);
-t_hist				*create_history(t_pos *pos, t_hist *hist);
-t_hist				*add_list_back_hist(t_hist *hist);
-void				update_position(t_pos *pos, char *cmd);
+void					transform_tab_into_space(char *line);
+t_hist					*escape_code(char *buf, t_pos *pos, t_hist *hist);
+void					right_arrow(t_pos *pos);
+void					left_arrow(t_pos *pos);
 
 /*
-**MOVE_THROUGHT_HISTORY.C
+** HISTORY.C
 */
 
-
-t_hist				*move_through_history(t_hist *hist, t_pos *pos, char *usage, char *buf);
+void					free_t_hist(t_hist *hist);
+void					init_t_hist(t_hist *hist);
+t_hist					*add_list_back_hist(t_hist *hist);
+t_hist					*create_history(t_pos *pos, t_hist *hist);
 
 /*
-**SEARCH_IN_HISTORY.C
+** INITIALISATION_STOCK
 */
 
-t_hist		*search_up_complete_in_history(t_hist *hist, t_pos *pos);
-t_hist		*search_down_complete_in_history(t_hist *hist, t_pos *pos);
-t_hist		*search_up_incomplete_in_history(t_hist *hist, t_pos *pos);
-t_hist		*search_down_incomplete_in_history(t_hist *hist, t_pos *pos);
+void					get_cursor_info(t_pos *pos, int *li, int *co, int i);
+void					init_terminfo(t_pos *pos);
+void					init_pos(t_pos *pos, int usage);
+void					*stock(void *to_stock, int usage);
 
 /*
-**TERMCAPS_TOOLS.C
+** INPUT_IS_ENTRY
 */
 
-void				print_info(t_pos *pos);
-void				print_hist(t_pos *pos, t_hist *hist);
+t_hist					*entry_is_complete(t_pos *pos, t_hist *hist);
+t_hist					*input_is_entry(t_pos *pos, t_hist *hist, char *buf);
 
 /*
-**CALCUL_LINE.C
+** INPUT_IS_PRINTABLE_CHAR
 */
 
-int					go_to_let_nb_saved(t_pos *pos);
-int					count_nb_line(t_pos *pos, int *j);
+void					input_is_a_string_of_printable_char(t_pos *pos,
+						char *to_add);
+void					prompt_is_on_last_char(t_pos *pos);
+void					input_is_printable_char(t_pos *pos, char *buf);
 
+/*
+** INPUT_IS_REMOVE_CHAR
+*/
 
+void					input_is_delete(t_pos *pos);
+int						input_is_backspace(t_pos *pos);
+
+/*
+** MOVE_THROUGHT_HISTORY
+*/
+
+t_hist					*move_through_history(t_hist *hist,
+						t_pos *pos, char *usage);
+
+/*
+** PRINT_ANS
+*/
+
+void					prepare_to_print(t_pos *pos, char *buf);
+void					print_ans(t_pos *pos, int i, int act_coi);
+
+/*
+** SEARCH_IN_HISTORY
+*/
+
+t_hist					*search_up_complete_in_history(t_hist *hist,
+						t_pos *pos);
+t_hist					*search_down_complete_in_history(t_hist *hist,
+						t_pos *pos);
+void					remove_last_link_hist(void);
+
+/*
+** SIGNAL
+*/
+
+void					signal_list(void);
+
+/*
+** START_TERMCAPS
+*/
+
+char					*termcaps42sh(t_pos *pos, t_hist *hist, t_var *var);
+void					print_prompt(t_pos *pos);
+
+/*
+** TAB_KEY
+*/
+
+void					input_is_tab(t_pos *pos);
+
+/*
+** TAB_KEY_VAR
+*/
+
+t_htab					*looking_for_var(t_pos *pos, t_htab *htab, char **name);
+
+/*
+** TAB_KEY_CURRENT_DIR
+*/
+
+t_htab					*looking_for_current(t_pos *pos, t_htab *htab,
+						char **path, char **name);
+
+/*
+** TAB_KEY_ALL_PATH
+*/
+
+t_htab					*looking_for_all(t_pos *pos, t_htab *htab, char **name);
+
+/*
+** TAB_KEY_TOOLS_CALCUL_PRINT
+*/
+
+int						is_a_directory(char *path, t_pos *pos);
+int						get_word_index(t_pos *pos);
+void					prepare_to_print_htab(t_pos *pos, t_htab *htabi);
+void					print_htab(t_htab *htab, int max_word);
+void					complete_with_space(t_htab *htab);
+
+/*
+** TAB_KEY_TOOLS_MANIP
+*/
+
+t_htab					*adjust_lenght_max(t_htab *htab);
+char					*get_full_path(t_pos *pos);
+char					*get_correct_path(char *path);
+void					reduce_ans(t_pos *pos, char *name);
+void					add_slash_on_ans(t_pos *pos);
+
+/*
+** TAB_KEY_STRUCT
+*/
+
+void					free_htab(t_htab *htab);
+t_htab					*add_list_back_htab(t_htab *htab);
+t_htab					*add_list_back_sort_htab(t_htab *head, t_htab *ls,
+						int loop);
+t_htab					*fill_new_htab(t_htab *htab, t_htab *neww, int match);
+
+/*
+** TAB_KEY_AUTO_COMPLETE
+*/
+
+int						wildcard_match(char *s1, char *s2);
+
+t_htab					*get_current_match(t_htab *htab, char *name,
+						int wildcard);
+void					auto_complete(t_pos *pos, t_htab *htab, char *name,
+						char *old_pos_ans);
+t_htab					*prepare_auto_complete(t_pos *pos, t_htab *htab,
+						char *name);
+t_htab					*get_intelligent_match(t_htab *htab, char *name);
+
+/*
+** TAB_KEY_AUTO_COMPLETE_FOR_TILDE_C
+*/
+
+void					reduce_ans_for_tilde(t_pos *pos, char *name);
+int						get_length_of_home_env(t_var *env);
+
+/*
+** TAB_KEY_SORT
+*/
+
+t_htab					*sort_list_htab(t_htab *head);
+
+/*
+** TOOLS
+*/
+
+void					clean_at_start(t_pos *pos);
+void					short_update(t_pos *pos, int len);
+void					update_position(t_pos *pos);
+int						is_in_selection_area(int i, t_pos *pos);
+
+/*
+** COPY a mettre a la norme
+*/
+void					print_from_begin(t_pos *pos);
+void					display_line(t_pos*pos);
+void					selection_check(t_pos *pos, char *buf);
+void					select_right(t_pos *pos);
+void					select_left(t_pos		*pos);
+
+/*
+** COPY_TOOLS
+*/
+int						is_select(char *buf, t_pos *pos);
+void					selected(t_pos *pos, char *buf);
+void					clear_and_print(t_pos *pos);
+void					save_char(t_pos *pos);
+
+/*
+** CUT
+*/
+void					check_copy(unsigned char *buf, t_pos *pos);
+void					copy(t_pos *pos);
+void					paste(t_pos *pos);
+void					cut_char(t_pos *pos);
+char					*remove_cut(char *str, int start, int end);
+
+/*
+** JUMP a mettre a la norme
+*/
+
+void					find_jump(char *buf, t_pos *pos);
+
+/*
+**JUMP_UP_DOWN.C
+*/
+
+void					jump_down(t_pos *pos);
+void					jump_up(t_pos *pos);
+
+/*
+** HISTORY_EXPANSION.C
+*/
+void					check_history_expansion(t_pos *pos, t_hist *hist, int i,
+						int error);
+int						replace_expansion_by_value(t_pos *pos, t_hist *hist,
+						int i, int error);
+int						check_if_inside_symbols(char *ans, int i);
+
+/*
+** HISTORY_EXPANSION_TYPES.C
+*/
+
+int						double_exclamation_expansion(char **new_ans,
+						t_hist *hist);
+int						number_expansion(char **new_ans, t_hist *hist,
+						char *expansion);
+int						negative_number_expansion(char **new_ans, t_hist *hist,
+						char *expansion);
+int						word_finding_expansion(char **new_ans, t_hist *hist,
+						char *expansion, t_pos *pos);
+int						get_expansion_value(char *expansion, t_hist *hist,
+						char **new_ans, t_pos *pos);
+
+/*
+** HISTORY_EXPANSION_CALCULATE.C
+*/
+
+char					*get_expansion_content(char *ans, int i);
+int						get_expansion_length(char *ans, int i);
+
+/*
+** init_alias.c
+*/
+void					init_alias(t_var *var, t_pos *pos, char *line);
+void					write_alias(t_var *var, t_pos *p);
 
 /*
 *******************************************************************************
@@ -256,8 +500,11 @@ int						ft_put_c(int c);
 ***								env.c										***
 *******************************************************************************
 */
-t_var					*init_env(char **env);
+t_var					*init_env(char **env, t_pos *pos, char **av, int i);
 char					*init_name(char *src);
+void					free_env(t_var *ptr_env);
+char					*init_data(char *src);
+void					shlvl(t_var *env);
 
 /*
 *******************************************************************************
@@ -286,15 +533,103 @@ int						ft_file_wrights(char *path);
 char					*remove_char(char **str, int i);
 
 /*
-*******************************************************************************
-***								ft_error.c									***
-*******************************************************************************
+**    CONTROL_SEARCH_HISTORY.C
 */
-//void					free_all(t_all *all);
-void					free_env(t_var *var);
 
-void					find_jump(char *buf, t_pos *pos);
+t_hist					*control_search_history(t_pos *pos, t_hist *hist,
+						unsigned char *buf);
+t_hist					*search_occurence_in_history(t_pos *pos, t_hist *hist,
+						t_ctrl_hist *ctrl);
+void					needle_found_in_history(t_pos *pos, t_hist *hist,
+						t_ctrl_hist *ctrl);
+t_hist					*exiting_control_mode(t_pos *pos, t_hist *hist);
+int						get_pos_strstr(char *str, char *tofind, int i, int j);
 
-# include "lexeur.h"
+/*
+**CONTROL_SEARCH_HISTORY_CALCUL_LINES.C
+*/
+
+void					get_right_coordinates_found(t_pos *pos, t_hist *hist,
+						t_ctrl_hist *ctrl);
+int						count_cmd_line_len(t_pos *pos, char *ans, int act_co);
+void					count_ctrl_col_and_line(t_pos *pos, char *ans,
+						t_ctrl_hist *ctrl, int needle);
+t_hist					*exit_control_search(t_hist *hist, t_pos *pos);
+
+/*
+**CONTROL_SEARCH_HISTORY_CALCUL_POS.C
+*/
+
+void					get_right_coordinates_not_found(t_pos *pos, t_ctrl_hist
+						*ctrl);
+void					get_pos_coordinates_right_again(t_pos *pos);
+
+/*
+** CHECK_FOR_TILDE_C
+*/
+
+char					*check_for_tilde(char *ans, t_var *env, int i,
+						int usage);
+void					check_copy(unsigned char *buf, t_pos *pos);
+
+/*
+** CHECK_BACKSLASH_C
+*/
+
+int						odd_backslash(int i, char *ans);
+char					*check_backslash(t_pos *pos);
+
+/*
+**	TOKEN_C
+*/
+
+int						token_condition(char *ans, int i);
+int						token(char *ans, t_pos *pos);
+
+/*
+**	TOKEN_CONDITIONS_C
+*/
+
+int						simple_pipe(char *ans, int i);
+int						double_token(char *ans, int i);
+int						brace_param(char *ans, int i);
+int						simple_quote(char *ans, int i);
+int						double_quote(char *ans, int i);
+
+/*
+**	HEREDOC_C
+*/
+
+void					check_for_heredoc(t_pos *pos, int i, char open);
+void					search_for_heredocs_in_ans(t_pos *pos, int i, int open);
+int						fill_hdoc_content(t_pos *pos, char *ans, int i);
+int						heredoc_found(t_pos *pos, int i, int j);
+
+/*
+**	HEREDOC_SEND_VALID_ANS_C
+*/
+
+void					heredoc_ctrl_d(t_pos *pos, t_hist **hist);
+void					remake_pos_ans(t_pos *pos);
+int						fill_ans_heredoc(t_pos *pos, int i, int j);
+char					*put_symbol_in_ans(char *ans, int i);
+int						check_if_to_find_is_not_empty(t_heredoc *hdoc);
+
+/*
+**	HEREDOC_TOOLS_C
+*/
+
+char					*remove_backslash(char *ans);
+int						going_to_heredoc_end(t_pos *pos, int i);
+void					free_hdoc(t_heredoc *hdoc);
+t_heredoc				*add_list_back_heredoc(t_heredoc *heredoc);
+void					init_t_heredoc(t_heredoc *hdoc);
+
+/*
+**	INIT_SPECIAL_PARAMS_C
+*/
+
+t_var					*init_spe_params(char **av);
+void					*to_stock(void *stock, int usage);
 
 #endif

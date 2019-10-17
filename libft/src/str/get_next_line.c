@@ -3,96 +3,60 @@
 /*                                                              /             */
 /*   get_next_line.c                                  .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: shthevak <marvin@le-101.fr>                +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
-/*   Created: 2017/12/20 16:06:09 by shthevak     #+#   ##    ##    #+#       */
-/*   Updated: 2019/03/16 12:40:16 by shthevak    ###    #+. /#+    ###.fr     */
+/*   Created: 2018/10/23 08:43:18 by rlegendr     #+#   ##    ##    #+#       */
+/*   Updated: 2019/10/10 08:24:13 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
 #include "ft_str.h"
 
-char	**multi_fd(int fd, t_stock **list)
+char	*get_line(char *str, char **line)
 {
-	t_stock		*n_list;
-	t_stock		*tmp;
-
-	if (*list)
-	{
-		tmp = *list;
-		while (tmp->next && tmp->fd != fd)
-			tmp = tmp->next;
-		if (tmp->fd == fd)
-			return (&tmp->str);
-	}
-	if (!(n_list = (t_stock*)malloc(sizeof(t_stock))))
-		return (NULL);
-	n_list->fd = fd;
-	n_list->str = NULL;
-	n_list->next = NULL;
-	if (*list)
-		tmp->next = n_list;
-	else
-		*list = n_list;
-	return (&n_list->str);
-}
-
-char	*malloc_str(char *str, char **line)
-{
-	int		i;
-	char	*tmp;
+	char		*temp;
+	int			i;
+	int			newl;
 
 	i = 0;
-	while (str[i] != '\n' && str[i])
-		i++;
-	*line = ft_strsub(str, 0, i);
-	if (str[i] == '\n')
-	{
-		tmp = str;
-		str = ft_strsub(str, i + 1, ft_strlen(str) - i - 1);
-		ft_strdel(&tmp);
-	}
-	else
-		ft_strdel(&str);
-	if (i == 0 && !str)
+	newl = 0;
+	if (!(*str))
 		return (NULL);
-	return (str);
-}
-
-char	*ft_concat(char *buff, int ret, char *str)
-{
-	char	*tmp;
-
-	buff[ret] = '\0';
-	tmp = str;
-	str = ft_strjoin(str, buff);
-	ft_strdel(&tmp);
-	return (str);
+	while (str[i] != '\n' && str[i] != '\0')
+		i++;
+	if (str[i] == '\n')
+		newl = 1;
+	*line = ft_strsub(str, 0, i);
+	temp = ft_strsub(str, i + newl, (ft_strlen(str) - (i + newl)));
+	str = ft_strcpy(str, temp);
+	free(temp);
+	return (*line);
 }
 
 int		get_next_line(const int fd, char **line)
 {
-	char			buff[BUFF_SIZE + 1];
-	int				ret;
-	static t_stock	*list = NULL;
-	char			**str;
+	static char	*str = NULL;
+	char		buf[BUFF_SIZE + 1];
+	int			ret;
 
-	str = multi_fd(fd, &list);
-	if (fd < 0 || !line || read(fd, buff, 0) < 0)
+	ret = 1;
+	if (fd < 0 || line == NULL || BUFF_SIZE < 1)
 		return (-1);
-	if (*str == NULL)
+	if (!(str))
+		str = ft_strnew(1);
+	while (!ft_strchr(str, '\n') && ret > 0)
 	{
-		*str = ft_strdup("\0");
+		if ((ret = read(fd, buf, BUFF_SIZE)) > 0)
+		{
+			buf[ret] = '\0';
+			str = ft_strjoinf(str, buf, 1);
+		}
 	}
-	while ((ret = read(fd, buff, BUFF_SIZE)) > 0)
-	{
-		*str = (ft_concat(buff, ret, *str));
-		if (ft_strstr(*str, "\n") != NULL)
-			break ;
-	}
-	*str = malloc_str(*str, line);
-	if (*str == NULL && ft_strcmp(*line, "\0") == 0)
-		return (0);
-	return (1);
+	buf[ret] = '\0';
+	if (ret < 0)
+		return (-1);
+	if ((*line = get_line(str, line)) == NULL)
+		ft_strdel(&str);
+	return (*line == NULL ? 0 : 1);
 }

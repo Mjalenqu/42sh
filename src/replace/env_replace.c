@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   env_replace.c                                    .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.42.fr>          +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/04/16 17:41:43 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/04/30 12:37:14 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/05/28 13:26:09 by husahuc     ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -38,26 +38,51 @@ char		*switch_word(char *str, char *tmp, int i)
 	return (res);
 }
 
-char		*find_env_var(t_var *env, char *str, int i)
+char		*replace_while(t_var *env, char *ar[4])
 {
-	int		s;
-	char	*tmp;
 	t_var	*start;
 
-	s = i + 1;
-	while (str[i] && ((str[i] < 9 && str[i] > 13) || str[i] != ' '))
-		i++;
-	tmp = ft_strsub(str, s, i - s);
 	start = env;
 	while (start)
 	{
-		if (ft_strcmp(tmp, start->name) == 0 && start->type == 0)
+		if (ft_strcmp(ar[0], start->name) == 0 && start->type == ENVIRONEMENT)
 		{
-			ft_strdel(&tmp);
-			return (start->data);
+			ar[2] = ft_strjoin(ar[1], start->data);
+			ft_strjoin_free(&ar[2], ar[3]);
+			ft_strdel(&ar[0]);
+			ft_strdel(&ar[1]);
+			return (ar[2]);
 		}
 		start = start->next;
 	}
-	ft_strdel(&tmp);
-	return (ft_strdup(""));
+	return (ft_strdup(ar[1]));
+}
+
+char		*replace_env(t_var *env, char *str, int i)
+{
+	int		s;
+	char	*ar[5];
+
+	s = i;
+	ar[3] = ft_strdup("");
+	while (str[i] && str[i] != '$')
+		i++;
+	ar[1] = ft_strsub(str, s, i - s);
+	i++;
+	s = i;
+	while (str[i] && str[i] != '$' && str[i] != '"' &&
+	(str[i] < 9 || str[i] > 13) && str[i] != ' ')
+		i++;
+	ar[0] = ft_strsub(str, s, i - s);
+	if (str[i])
+	{
+		s = i;
+		while (str[i])
+			i++;
+		ar[3] = ft_strsub(str, s, i - s);
+	}
+	ar[2] = replace_while(env, ar);
+	ft_strdel(&ar[0]);
+	ft_strdel(&ar[1]);
+	return (ar[2]);
 }

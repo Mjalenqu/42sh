@@ -6,7 +6,7 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/04/26 14:34:20 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/04/27 15:05:25 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/16 13:20:31 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -14,88 +14,77 @@
 #include "../../includes/exec.h"
 #include "../../includes/lexeur.h"
 
-int			cnt_process(t_lexeur **res, int i)
+t_redirect		*fill_agregator(t_redirect *p, t_lexeur **res, int *i, int t)
 {
-	int		nb;
+	int			done;
+	t_redirect	*tmp;
 
-	nb = 0;
-	while (res[i] && res[i]->word)
+	tmp = init_var(&done, &t, i);
+	while (res[t])
 	{
-		i++;
-		nb++;
+		if (check_moove_index(res, &t))
+			break ;
+		if (res[t] && (check_token_in_condition(res, t)))
+		{
+			done += (res[t]->token == 7) ? 1 : 0;
+			if (!tmp)
+			{
+				tmp = malloc(sizeof(t_redirect));
+				p = tmp;
+				(*i) += fill_ag_first(tmp, res, &t);
+			}
+			else
+				(*i) += fill_ag_next(tmp, res, &t);
+			done++;
+		}
+		t += (res[t]) ? 1 : 0;
 	}
-	return (nb);
+	(*i) += done;
+	return (p);
 }
 
-void		fill_cmd(t_lexeur **res, t_job **j, int *k, int *i)
+void			fill_cmd(t_lexeur **res, t_job **j, int *k, int *i)
 {
-	if (res[*i]->token == 4)
-		(*j)->p->token = 'R';
-	else if (res[*i]->token == 5)
-		(*j)->p->token = '>';
-	else if (res[*i]->token == 6)
-		(*j)->p->token = 'L';
-	else if (res[*i]->token == 7)
-		(*j)->p->token = '<';
-	else
-	{
-		(*j)->p->token = '\0';
-		(*j)->p->cmd[*k] = ft_strdup(res[*i]->word);
-		(*k)++;
-	}
+	(*j)->p->cmd[*k] = ft_strdup(res[*i]->word);
+	(*k)++;
 	(*i)++;
 }
 
-void		change_job(t_job **j, t_process **start)
+void			fill_process_first_part(t_job **j, t_lexeur **res,
+int *i, int k)
 {
-	(*j)->p->next = NULL;
-	(*j)->p = *start;
-	(*j) = (*j)->next;
-	(*j)->p = malloc(sizeof(t_process));
-	*start = (*j)->p;
+	if (res[*i]->token == 7)
+	{
+		(*j)->p->cmd = NULL;
+		return ;
+	}
+	(*j)->p->cmd = malloc(sizeof(char *) * (cnt_process(res, *i) + 1));
+	while (res[*i] && res[*i]->word)
+		fill_cmd(res, j, &k, i);
+	fill_all_cmd(res, j, &k, *i);
+	(*j)->p->cmd[k] = NULL;
+	(*j)->p->builtin = test_builtin((*j)->p);
 }
 
-void		fill_process_split(t_job **j, t_lexeur **res, int *i)
-{
-	int		k;
-
-	k = (*i);
-	while (res[k] && (res[k]->word || (res[k]->token == 4 ||
-	res[k]->token == 5 || res[k]->token == 6 || res[k]->token == 7)))
-		k++;
-	if (res[k] && res[k]->token == 0)
-		(*j)->p->split = 'A';
-	else if (res[k] && res[k]->token == 2)
-		(*j)->p->split = '|';
-	else if (res[k] && res[k]->token == 3)
-		(*j)->p->split = 'P';
-	else
-		(*j)->p->split = '\0';
-}
-
-/* TODO faire ensorte que les >> ou << etc ne suis pas pris comme des process.*/
-
-int			fill_process_while(t_lexeur **res, t_job **j, t_process **start,
+int				fill_process_while(t_lexeur **res, t_job **j, t_process **start,
 int *i)
 {
 	int		k;
 
 	k = 0;
-	fill_process_split(j, res, i);
-	(*j)->p->cmd = malloc(sizeof(char *) * (cnt_process(res, *i) + 1));
-	while (res[*i] && (res[*i]->word || (res[*i]->token == 4 ||
-	res[*i]->token == 5 || res[*i]->token == 6 || res[*i]->token == 7)))
-		fill_cmd(res, j, &k, i);
-	(*j)->p->cmd[k] = NULL;
-	if (res[*i] && (res[*i]->token != 1 && res[*i]->token != 8 && res[*i]->token
-	!= 4 && res[*i]->token != 5 && res[*i]->token != 6 && res[*i]->token != 7))
+	fill_process_first_part(j, res, i, k);
+	if (res[*i])
+		(*j)->p->redirect = fill_agregator(NULL, res, i, 0);
+	if (res[*i] && (res[*i]->token == 0 || res[*i]->token == 2
+	|| res[*i]->token == 3))
 	{
+		fill_process_split(j, res, *i);
 		(*j)->p->next = malloc(sizeof(t_process));
 		(*j)->p = (*j)->p->next;
 		(*j)->p->status = '\0';
 	}
 	else if ((res[*i] && (*j)->next != NULL) && (res[*i]->token == 1 ||
-	res[*i]->token == 8))
+	res[*i]->token == 10))
 		change_job(j, start);
 	else
 	{
@@ -103,11 +92,10 @@ int *i)
 		(*j)->p = *start;
 		return (0);
 	}
-	(*i)++;
 	return (1);
 }
 
-void		fill_process(t_job *j, t_lexeur **res)
+void			fill_process(t_job *j, t_lexeur **res)
 {
 	int			i;
 	t_process	*start;
@@ -115,16 +103,15 @@ void		fill_process(t_job *j, t_lexeur **res)
 	i = 0;
 	j->p = malloc(sizeof(t_process));
 	start = j->p;
-	j->p->status = '\0';
-	while (res[i]) // probleme le tableau ne vas pas plus loin quand c'est >> ou << FUCK.
-	{
-		printf("\nres[%d]: _%s_\n", i, res[i]->word);
-		i++;
-	}
-	i = 0;
 	while (res[i])
 	{
+		j->p->status = '\0';
+		j->p->stoped = 0;
+		j->p->completed = 0;
+		j->p->redirect = NULL;
+		j->p->split = '\0';
 		if (fill_process_while(res, &j, &start, &i) == 0)
 			break ;
+		i++;
 	}
 }

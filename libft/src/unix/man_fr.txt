@@ -1,4 +1,0 @@
-|Nom de fonction|Prototype|Description|Valeur de retour|
-|:--------:|:--------:|:--------:|:--------:|
-|ft_terminal_w||||
-|ft_terminal_h||||
