@@ -48,7 +48,7 @@ t_htab			*add_list_back_htab(t_htab *htab)
 	t_htab	*new;
 
 	new = NULL;
-	if (!(new = (t_htab*)malloc(sizeof(t_htab))))
+	if (!(new = (t_htab*)ft_malloc(sizeof(t_htab))))
 		return (NULL);
 	if (htab == NULL)
 	{

@@ -6,18 +6,18 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/10 09:39:47 by rlegendr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 13:01:48 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/25 16:10:52 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
 #include "../../includes/termcaps.h"
 
-int				is_on_token(char *ans)
+static int		is_on_token(char *ans, int i)
 {
-	if (ft_strncmp(ans, "&&", 2) == 0 || ft_strncmp(ans, "&", 1) == 0 ||
-			ft_strncmp(ans, "||", 2) == 0 || ft_strncmp(ans, "|", 1) == 0 ||
-			ft_strncmp(ans, ";", 1) == 0 || ft_strncmp(ans, "`", 1) == 0)
+	if (ft_strncmp(ans + i, "&&", 2) == 0 || ft_strncmp(ans + i, "||", 2) == 0)
+		return (2);
+	else if (ans[i] == '&' || ans[i] == '|' || ans[i] == ';')
 		return (1);
 	return (0);
 }
@@ -27,63 +27,63 @@ static int		is_on_var(t_pos *pos)
 	int		i;
 
 	i = pos->let_nb - 1;
-	while (i >= 0 && pos->ans[i] != 32 && is_on_token(pos->ans + i) == 0)
+	while (i >= 0 && pos->ans[i] != 32 && is_on_token(pos->ans, i) == 0)
 	{
-		if (pos->ans[i] == '$')
+		if (pos->ans[i] == '$' && odd_backslash(i - 1, pos->ans) == 0)
 			return (1);
 		i -= 1;
 	}
 	return (0);
 }
 
-static int		scanning_pos_ans(t_pos *pos, int *i, int *word_number)
+int				scan_ans(t_pos *pos, int i, int *passed_exe, int *ret)
 {
-	if (pos->ans[*i] == ' ')
+	while (i < pos->let_nb && pos->ans[i] == 32)
 	{
-		while (pos->ans[*i] == ' ' && *i < pos->let_nb)
-			*i += 1;
-		if (pos->ans[*i] != ' ')
-			*word_number += 1;
+		i++;
+		if (i == pos->let_nb || pos->ans[i] != 32)
+			return (i);
 	}
-	else if (is_on_token(pos->ans + *i))
+	if (*passed_exe != 2 && pos->ans[i] != 32)
+		return (scan_ans_current_file(passed_exe, ret, i, pos));
+	else if ((*ret = is_on_token(pos->ans, i)))
 	{
-		*word_number = 0;
-		*i += 1;
-		while (pos->ans[*i] == ' ' && *i < pos->let_nb)
-			*i += 1;
-		if (*i == pos->let_nb)
-			return (-1);
+		i += *ret;
+		*ret = -1;
+		*passed_exe = 0;
+		return (i);
 	}
 	else
-		*i += 1;
-	return (0);
+		*ret = 1;
+	return (i);
 }
 
-int				scan_pos_ans(t_pos *pos)
+int				get_usage(t_pos *pos)
 {
 	int		i;
-	int		word_number;
+	int		passed_exe;
+	int		ret;
 
 	i = 0;
-	word_number = 0;
+	passed_exe = 0;
 	if (pos->let_nb == 0)
 		return (-1);
 	if (is_on_var(pos) == 1)
 		return (2);
-	while (pos->ans[i] == ' ')
+	while (i < pos->let_nb && pos->ans[i] == ' ')
 		i += 1;
 	if (i == pos->let_nb)
 		return (-1);
-	while (pos->ans[i] && i < pos->let_nb)
+	if (is_on_token(pos->ans, i))
+		return (-1);
+	while (i < pos->let_nb && pos->ans[i])
 	{
-		if (scanning_pos_ans(pos, &i, &word_number) == -1)
-			return (-1);
+		i = scan_ans(pos, i, &passed_exe, &ret);
+		if (i == pos->let_nb || pos->ans[i] == '\0')
+			break ;
+		i++;
 	}
-	if (word_number == 0)
-		return (0);
-	if (word_number > 0)
-		return (1);
-	return (1);
+	return (ret);
 }
 
 void			input_is_tab(t_pos *pos)
@@ -95,7 +95,7 @@ void			input_is_tab(t_pos *pos)
 
 	htab = NULL;
 	pos->ans_printed = 1;
-	if ((usage = scan_pos_ans(pos)) == -1)
+	if ((usage = get_usage(pos)) == -1)
 		return ;
 	path = get_full_path(pos);
 	name = get_correct_path(path);

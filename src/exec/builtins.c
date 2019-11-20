@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/02 11:06:30 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 08:24:59 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/05 17:46:30 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -34,21 +34,29 @@ const t_builtin	g_builtin_list[LEN_BUILTIN_LIST] =
 	{"setenv", &ft_setenv, 1},
 	{"unsetenv", &ft_unsetenv, 1},
 	{"env", &ft_env, 0},
-	{"bg", &ft_bg, 1}
+	{"bg", &ft_bg, 1},
+	{"shtheme", &ft_shtheme, 1}
 };
 
 int		is_builtin_modify(t_process *p)
 {
 	int i;
+	int j;
 
 	i = -1;
-	if (!p->cmd)
+	j = -1;
+	if (!p->cmd || !p->cmd[0])
 		return (0);
-	if (!p->cmd[0])
+	while (p->cmd[++j])
+	{
+		if (find_equal(p->cmd[j]) == 0)
+			break ;
+	}
+	if (!(p->cmd[j]))
 		return (0);
 	while (++i < LEN_BUILTIN_LIST)
 	{
-		if (ft_strcmp(p->cmd[0], g_builtin_list[i].name) == 0)
+		if (ft_strcmp(p->cmd[j], g_builtin_list[i].name) == 0)
 		{
 			if (g_builtin_list[i].modify_data == 1)
 				return (1);
@@ -60,17 +68,22 @@ int		is_builtin_modify(t_process *p)
 
 int		find_builtins(t_process *p, t_var **var)
 {
-	int i;
+	int		i;
+	t_pos	*pos;
 
+	if (p->exec_builtin == 0)
+		return (0);
+	pos = to_stock(NULL, 1);
 	i = -1;
-	if (!p->cmd[0])
+	if (!p->cmd || !p->cmd[0])
 		return (0);
 	while (++i < LEN_BUILTIN_LIST)
 	{
 		if (ft_strcmp(p->cmd[0], g_builtin_list[i].name) == 0)
 		{
 			p->ret = g_builtin_list[i].ptr_builtin(p, var);
-			add_list_env(var, SPE, ft_strdup("?"), ft_itoa(p->ret));
+			if (pos->exit_mode < 0)
+				add_list_env(var, SPE, ft_strdup("?"), ft_itoa(p->ret));
 			return (1);
 		}
 	}
@@ -84,7 +97,7 @@ int		test_builtin(t_process *p)
 
 	i = -1;
 	j = 0;
-	if (!p->cmd[0])
+	if (!p->cmd || !p->cmd[0])
 		return (0);
 	while (++i < LEN_BUILTIN_LIST)
 	{

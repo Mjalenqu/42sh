@@ -6,7 +6,7 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/21 17:24:10 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/08 20:59:11 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/29 13:45:54 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -40,7 +40,7 @@ char		*get_fd_out(char *str)
 	i++;
 	jump_space(str, &i);
 	start = i;
-	while (str[i])
+	while (str[i] && (!odd_backslash(i - 1, str) && find_token(str, i) == -1))
 		i++;
 	fd_out = ft_strsub(str, start, i - start);
 	return (fd_out);

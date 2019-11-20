@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   tools.c                                          .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/02 10:55:32 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/10 11:01:38 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/04 12:23:19 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -33,7 +33,7 @@ char	**split_env(t_var *var)
 	while (save)
 		split_env_while(&save, &i);
 	save = var;
-	array = (char**)malloc(sizeof(char*) * (i + 1));
+	array = (char**)ft_malloc(sizeof(char*) * (i + 1));
 	array[i] = 0;
 	j = 0;
 	while (save)

@@ -5,8 +5,8 @@
 /*                                                 +:+:+   +:    +:  +:+:+    */
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
-/*   Created: 2019/03/02 11:16:43 by shthevak     #+#   ##    ##    #+#       */
-/*   Updated: 2019/08/30 17:36:58 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Created: 2019/03/02 11:16:43 by mjalenqu     #+#   ##    ##    #+#       */
+/*   Updated: 2019/11/04 12:23:39 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -17,7 +17,7 @@ void	ft_strjoin_free(char **s1, const char *s2)
 {
 	char *ret;
 
-	if (!(ret = malloc(sizeof(char) * (ft_strlen(*s1) + ft_strlen(s2) + 1))))
+	if (!(ret = ft_malloc(sizeof(char) * (ft_strlen(*s1) + ft_strlen(s2) + 1))))
 	{
 		ft_strdel(s1);
 		return ;

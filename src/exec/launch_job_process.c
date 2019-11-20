@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   launch_job_process.c                             .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/08/29 18:52:00 by husahuc      #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 10:27:31 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/05 19:32:10 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -16,13 +16,22 @@
 
 t_process	*get_and_or(t_process *p)
 {
+	char split;
+
 	if (p->split != '|' && p->split != 'A')
 		return (p->next);
+	split = p->split;
 	if (p->split == '|' && p->ret != 0)
 		return (p->next);
 	else if (p->split == 'A' && p->ret == 0)
 		return (p->next);
-	return (p->next->next);
+	while (p)
+	{
+		if (p->split != split)
+			return (p->next);
+		p = p->next;
+	}
+	return (NULL);
 }
 
 void		alert_job(t_job *j)
@@ -32,10 +41,8 @@ void		alert_job(t_job *j)
 		free_job(j);
 		return ;
 	}
-	if (j->split == '&')
-		print_start_process(j);
-	else if (job_is_stoped(j))
+	if (j->split != '&' && job_is_stoped(j))
 		j->notified = 1;
-	else
+	else if (j->split != '&')
 		remove_job(j->id, 0);
 }

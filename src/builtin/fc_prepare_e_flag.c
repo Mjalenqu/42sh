@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   fc_prepare_e_flag.c                              .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/05 14:02:04 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/10 11:36:00 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/11 13:16:20 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -25,9 +25,9 @@ void			correct_int_first_and_int_last_for_e_flag(t_fc *fc,
 		fc->int_first = hist->cmd_no - 1;
 		fc->int_last = hist->cmd_no - 1;
 	}
-	if (fc->int_first > hist->cmd_no)
+	if (fc->int_first > hist->cmd_no || fc->int_first == 0)
 		fc->int_first = hist->cmd_no - 1;
-	if (fc->int_last > hist->cmd_no)
+	if (fc->int_last > hist->cmd_no || fc->int_last == 0)
 		fc->int_last = hist->cmd_no - 1;
 	else if (fc->first_not_precised == 1)
 		fc->int_first = hist->cmd_no - 1;
@@ -64,11 +64,11 @@ static int		check_if_ename_is_text_editor(t_fc *fc, char **paths, int i)
 		closedir(dirp);
 	}
 	fc->error = 1;
-	ft_printf_err("42sh: command not found: %s\n", fc->ename);
+	ft_printf_err_fd("42sh: command not found: %s\n", fc->ename);
 	return (0);
 }
 
-char			**get_ide_paths(char **env)
+char			**get_ide_paths(char **env, int usage, t_fc *fc)
 {
 	int				i;
 	char			**paths;
@@ -84,6 +84,8 @@ char			**get_ide_paths(char **env)
 		}
 		i++;
 	}
+	if (usage == 0 && paths == NULL)
+		fc->error = 2;
 	return (paths);
 }
 
@@ -99,7 +101,7 @@ void			prepare_e_flag(t_fc *fc, t_hist *hist, t_var **var, int i)
 	char		**paths;
 
 	env = split_env(*var);
-	paths = get_ide_paths(env);
+	paths = get_ide_paths(env, 0, fc);
 	if (fc->ename == NULL || (fc->ename[0] > '0' && fc->ename[0] < '9'))
 	{
 		if (fc->ename != NULL)

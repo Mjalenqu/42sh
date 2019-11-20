@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   replace_tool.c                                   .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/10/08 20:22:43 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 08:18:55 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/24 13:04:59 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -37,7 +37,7 @@ int			check_backslash_var(char *str)
 	i = 0;
 	while (str[i] && str[i] != '$')
 		i++;
-	if (i == 0 || str[i - 1] != '\\')
+	if (!odd_backslash(i - 1, str))
 	{
 		if (i == 0 && !str[i + 1])
 			return (0);

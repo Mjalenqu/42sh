@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/17 08:05:59 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/09 09:06:31 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/21 15:37:43 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -36,7 +36,7 @@ int				regular_env_process_cmd(t_process *p, t_var *var, int i)
 	}
 	free(new_cmd);
 	free_new_env(head);
-	return (-1);
+	return (0);
 }
 
 t_var			*place_new_entry_in_tmp_env(char **new_env_entry,
@@ -49,8 +49,8 @@ t_var			*place_new_entry_in_tmp_env(char **new_env_entry,
 	if (var == NULL)
 		put_new_entry_in_var(var, new_env_entry, 0);
 	head = var;
-	while (var && var->next && ft_strcmp(new_env_entry[0], var->name) != 0
-				&& var->type != SPE)
+	while (var && var->next && !(ft_strcmp(new_env_entry[0], var->name) == 0 &&
+			var->type == ENVIRONEMENT))
 		var = var->next;
 	if (var->name != NULL && ft_strncmp(new_env_entry[0], var->name,
 				name_len) == 0 && var->type != SPE)
@@ -73,11 +73,15 @@ t_var			*copy_env(t_var *var)
 	head = NULL;
 	while (var)
 	{
-		if (var->type == ENVIRONEMENT)
+		if (var->type == ENVIRONEMENT || var->type == SPE)
 		{
-			new_var = add_list_back_env(new_var);
 			if (head == NULL)
-				head = new_var;
+			{
+				head = add_list_back_env(new_var);
+				new_var = head;
+			}
+			else
+				new_var = add_list_back_env(new_var);
 			new_var->name = ft_strdup(var->name);
 			new_var->data = ft_strdup(var->data);
 			new_var->type = var->type;
@@ -101,7 +105,7 @@ static int		normal_env_behavior(t_process *p, int i,
 				new_env_entry = ft_strsplit(p->cmd[i], '=');
 				if (new_env_entry[1] == NULL && p->cmd[i][0] == '=')
 				{
-					ft_printf_err("%s: env: invalid argument", TERM);
+					ft_printf_err_fd("%s: env: invalid argument", TERM);
 					free_new_env(new_var);
 					ft_free_tab(new_env_entry);
 					return (-1);
@@ -123,7 +127,7 @@ int				ft_env(t_process *p, t_var **var)
 	t_var		*head;
 	int			err;
 
-	err = 1;
+	err = 0;
 	head = NULL;
 	new_env = NULL;
 	if (!p->cmd[1])
@@ -131,10 +135,7 @@ int				ft_env(t_process *p, t_var **var)
 	else if (p->cmd[1] && (ft_strcmp(p->cmd[1], "-") == 0 ||
 				ft_strcmp(p->cmd[1], "-i") == 0 ||
 				ft_strcmp(p->cmd[1], "--ignore-environment") == 0))
-	{
 		err = go_through_process_cmd(p, &new_env, &head, 0);
-		free_new_env(head);
-	}
 	else
 		err = normal_env_behavior(p, 1, copy_env(*var));
 	return (err);

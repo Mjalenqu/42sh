@@ -6,7 +6,7 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/04/26 14:34:20 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/16 13:20:31 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/07 18:13:29 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -16,30 +16,27 @@
 
 t_redirect		*fill_agregator(t_redirect *p, t_lexeur **res, int *i, int t)
 {
-	int			done;
 	t_redirect	*tmp;
 
-	tmp = init_var(&done, &t, i);
+	tmp = init_var(&t, i);
 	while (res[t])
 	{
 		if (check_moove_index(res, &t))
 			break ;
 		if (res[t] && (check_token_in_condition(res, t)))
 		{
-			done += (res[t]->token == 7) ? 1 : 0;
 			if (!tmp)
 			{
-				tmp = malloc(sizeof(t_redirect));
+				tmp = ft_malloc(sizeof(t_redirect));
 				p = tmp;
-				(*i) += fill_ag_first(tmp, res, &t);
+				(*i) = fill_ag_first(tmp, res, &t);
 			}
 			else
-				(*i) += fill_ag_next(tmp, res, &t);
-			done++;
+				(*i) = fill_ag_next(tmp, res, &t);
 		}
-		t += (res[t]) ? 1 : 0;
+		else
+			t += (res[t]) ? 1 : 0;
 	}
-	(*i) += done;
 	return (p);
 }
 
@@ -58,10 +55,18 @@ int *i, int k)
 		(*j)->p->cmd = NULL;
 		return ;
 	}
-	(*j)->p->cmd = malloc(sizeof(char *) * (cnt_process(res, *i) + 1));
-	while (res[*i] && res[*i]->word)
-		fill_cmd(res, j, &k, i);
-	fill_all_cmd(res, j, &k, *i);
+	(*j)->p->cmd = ft_malloc(sizeof(char *) * (cnt_process(res, *i) + 1));
+	if (cnt_process(res, *i) == 0)
+	{
+		(*j)->p->cmd[0] = ft_strdup("");
+		k++;
+	}
+	else
+	{
+		while (res[*i] && res[*i]->word)
+			fill_cmd(res, j, &k, i);
+		fill_all_cmd(res, j, &k, *i);
+	}
 	(*j)->p->cmd[k] = NULL;
 	(*j)->p->builtin = test_builtin((*j)->p);
 }
@@ -79,7 +84,7 @@ int *i)
 	|| res[*i]->token == 3))
 	{
 		fill_process_split(j, res, *i);
-		(*j)->p->next = malloc(sizeof(t_process));
+		(*j)->p->next = ft_malloc(sizeof(t_process));
 		(*j)->p = (*j)->p->next;
 		(*j)->p->status = '\0';
 	}
@@ -95,23 +100,31 @@ int *i)
 	return (1);
 }
 
-void			fill_process(t_job *j, t_lexeur **res)
+void			fill_process(t_job *j, t_lexeur **res, int i)
 {
-	int			i;
 	t_process	*start;
 
-	i = 0;
-	j->p = malloc(sizeof(t_process));
+	j->p = ft_malloc(sizeof(t_process));
 	start = j->p;
-	while (res[i])
+	while (res[++i])
 	{
 		j->p->status = '\0';
 		j->p->stoped = 0;
 		j->p->completed = 0;
 		j->p->redirect = NULL;
+		j->p->hash_error = NULL;
+		j->p->exec_builtin = 1;
+		j->p->fd_in = 0;
+		j->p->fd_out = 1;
+		j->p->fd_error = 2;
+		j->p->pid = 0;
 		j->p->split = '\0';
+		j->p->file_in = 0;
+		j->p->file_out = 0;
+		j->p->ret = 0;
+		j->p->background = 0;
+		j->p->printed = 0;
 		if (fill_process_while(res, &j, &start, &i) == 0)
 			break ;
-		i++;
 	}
 }

@@ -17,7 +17,7 @@ t_var		*fill_var(char *name, char *data, int type)
 {
 	t_var	*var;
 
-	var = malloc(sizeof(t_var));
+	var = ft_malloc(sizeof(t_var));
 	var->name = ft_strdup(name);
 	var->data = ft_strdup(data);
 	var->type = type;
@@ -85,7 +85,7 @@ t_var		*add_list_back_env(t_var *env)
 	t_var	*new;
 
 	new = NULL;
-	if (!(new = (t_var*)malloc(sizeof(t_var))))
+	if (!(new = (t_var*)ft_malloc(sizeof(t_var))))
 		return (NULL);
 	if (env == NULL)
 	{

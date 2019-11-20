@@ -6,7 +6,7 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/08/18 18:06:47 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 09:23:51 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/25 21:57:17 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -29,7 +29,7 @@ void		free_replace(t_replace *replace)
 
 void		init_replace(t_replace **replace)
 {
-	(*replace) = malloc(sizeof(t_replace));
+	(*replace) = ft_malloc(sizeof(t_replace));
 	(*replace)->name = NULL;
 	(*replace)->next = NULL;
 }
@@ -48,10 +48,23 @@ void		*get_replace(void *stock, int i)
 char		*fill_res_token(int *tint, int ret, char *str)
 {
 	char	*res;
+	int		s;
+	char	*tmp;
 
 	(tint[1])++;
 	res = ft_strsub(str, (tint[0]), g_fill_token[ret].size);
 	(tint[0]) += g_fill_token[ret].size;
+	if (ret == 5 || ret == 8)
+	{
+		jump_space(str, &tint[0]);
+		s = tint[0];
+		while (str[tint[0]] && (str[tint[0]] < 9 || str[tint[0]] > 13)
+		&& str[tint[0]] != ' ')
+			tint[0]++;
+		tmp = ft_strsub(str, s, tint[0] - s);
+		ft_strjoin_free(&res, tmp);
+		ft_strdel(&tmp);
+	}
 	return (res);
 }
 

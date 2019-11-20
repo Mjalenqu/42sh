@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/18 07:50:21 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 15:47:12 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/04 12:23:19 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -25,7 +25,7 @@ static int		fill_new_env(t_process *p, int i, t_var **new_env,
 				p->cmd[i][0] == '=')
 		{
 			ft_free_tab(new_env_var);
-			ft_printf_err("42sh: env: invalid argument");
+			ft_printf_err_fd("42sh: env: invalid argument");
 			return (-2);
 		}
 		if (*new_env == NULL)
@@ -58,10 +58,12 @@ static void		interpret_env_cmd(t_process *p, int i, char *new_cmd,
 	}
 	if (check_error(new_cmd) != -1)
 	{
+		head = add_front_spe_params(old_env, head);
 		stock(head, 5);
 		start_exec(start_lex(head, new_cmd), head);
 		stock(old_env, 5);
 	}
+	free_new_env(head);
 }
 
 int				find_if_cmd_is_builtin(t_process *p)
@@ -75,7 +77,7 @@ int				find_if_cmd_is_builtin(t_process *p)
 	ft_strcmp(p->cmd[i], "set") == 0 || ft_strcmp(p->cmd[i], "unset") == 0 ||
 	ft_strcmp(p->cmd[i], "export") == 0))
 	{
-		ft_printf_err("env: %s: No such file or directory\n", p->cmd[i]);
+		ft_printf_err_fd("env: %s: No such file or directory\n", p->cmd[i]);
 		return (1);
 	}
 	return (0);

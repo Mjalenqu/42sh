@@ -6,12 +6,30 @@
 /*   By: vde-sain <marvin@le-101.fr>                +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/17 07:35:37 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/09/17 11:09:17 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/25 15:16:17 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
 #include "../../includes/termcaps.h"
+
+void			finish_auto_complete(t_pos *pos)
+{
+	if (is_a_directory(pos->ans, pos))
+		add_slash_on_ans(pos);
+	else if (pos->ans[pos->let_nb] == 32 && pos->braceparam != 1)
+		right_arrow(pos);
+	else if (pos->braceparam == 1)
+	{
+		input_is_printable_char(pos, "}");
+		if (pos->ans[pos->let_nb] == 32)
+			right_arrow(pos);
+		else
+			input_is_printable_char(pos, " ");
+	}
+	else
+		input_is_printable_char(pos, " ");
+}
 
 int				get_length_of_home_env(t_var *env)
 {

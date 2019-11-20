@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   alias.c                                          .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/14 17:50:35 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/09/26 08:28:35 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/06 10:04:14 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -24,7 +24,7 @@ t_replace *replace)
 		return (0);
 	while (replace->next)
 		replace = replace->next;
-	replace->next = malloc(sizeof(t_replace));
+	replace->next = ft_malloc(sizeof(t_replace));
 	replace = replace->next;
 	replace->name = ft_strdup(alias->data);
 	replace->next = NULL;
@@ -45,10 +45,7 @@ t_replace *replace)
 	else if (replace_alias_first_part(&var, alias, replace) == 1)
 		return (1);
 	else
-	{
-		alias->data = del_space(alias->data);
 		return (0);
-	}
 	return (1);
 }
 
@@ -62,10 +59,7 @@ int			check_tok(t_alias *alias, t_var *var, t_replace *replace)
 		if (tmp && tmp->next && (ft_strcmp(tmp->data, "&&") == 0 ||
 		ft_strcmp(tmp->data, "||") == 0
 		|| ft_strcmp(tmp->data, ";") == 0 || ft_strcmp(tmp->data, "|") == 0))
-		{
-			replace_alias(tmp->next, var, replace);
-			return (0);
-		}
+			return (replace_alias(tmp->next, var, replace));
 		tmp = tmp->next;
 	}
 	return (1);
@@ -82,11 +76,13 @@ int			check_boucle(t_alias *alias, t_replace *replace)
 	return (1);
 }
 
-void		replace_alias(t_alias *alias, t_var *var, t_replace *replace)
+int			replace_alias(t_alias *alias, t_var *var, t_replace *replace)
 {
 	t_var		*s_var;
+	t_alias		*tmp;
 	int			ret;
 
+	tmp = alias;
 	while (1)
 	{
 		s_var = var;
@@ -94,13 +90,15 @@ void		replace_alias(t_alias *alias, t_var *var, t_replace *replace)
 			break ;
 		ret = replace_alias_while(s_var, alias);
 		if (check_boucle(alias, replace) == 0)
-			break ;
+		{
+			del_all_backslash(tmp);
+			return (1);
+		}
 		if (replace_alias_last_part(alias, &ret, var, replace) == 0)
 			break ;
-		alias->data = del_space(alias->data);
 		if (alias->next)
 			alias = alias->next;
 	}
-	check_tok(alias, var, replace);
-	alias->data = del_space(alias->data);
+	del_all_backslash(tmp);
+	return (0);
 }

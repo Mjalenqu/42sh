@@ -6,7 +6,7 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/10/08 21:05:25 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/08 21:06:58 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/22 19:07:07 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -21,10 +21,10 @@ char		*change_buf(char *buf)
 
 	i = 0;
 	j = 0;
-	res = malloc(sizeof(char) * (ft_strlen(buf) + 1));
+	res = ft_malloc(sizeof(char) * (ft_strlen(buf) + 1));
 	while (buf[i])
 	{
-		if (buf[i] == '\\' && buf[i + 1])
+		if (!odd_backslash(i, buf) && buf[i + 1])
 			i++;
 		res[j] = buf[i];
 		if (buf[i])
@@ -32,5 +32,6 @@ char		*change_buf(char *buf)
 		j++;
 	}
 	res[j] = '\0';
+	ft_strdel(&buf);
 	return (res);
 }

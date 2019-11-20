@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/16 09:43:55 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 15:53:10 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/23 15:32:15 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -42,13 +42,13 @@ char				*absolute_path(char *path, char *tmp)
 	}
 	if ((file = opendir(path)) != NULL)
 	{
-		ft_printf_err("42sh: %s: is a directory\n", tmp);
+		prepare_error_message_for_hash(1, tmp);
 		closedir(file);
 	}
 	if (access(path, F_OK) == -1)
-		ft_printf_err("42sh: %s: No such file or directory\n", tmp);
+		prepare_error_message_for_hash(2, tmp);
 	else if (access(path, X_OK) == -1)
-		ft_printf_err("42sh: %s: permission denied\n", tmp);
+		prepare_error_message_for_hash(3, tmp);
 	else
 	{
 		ft_strdel(&tmp);
@@ -70,9 +70,9 @@ char				*path_found(char **paths, int i, char *ans, char *arg)
 char				*path_denied(char **paths, char *arg, int denied)
 {
 	if (denied != 0)
-		ft_printf_err("42sh: %s: permission denied\n", arg);
+		prepare_error_message_for_hash(3, arg);
 	else
-		ft_printf_err("42sh: %s: command not found\n", arg);
+		prepare_error_message_for_hash(4, arg);
 	ft_free_tab(paths);
 	ft_strdel(&arg);
 	return (NULL);

@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   error.c                                          .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/04/02 16:15:56 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 13:55:56 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/04 12:23:19 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -85,10 +85,10 @@ int		check_error(char *str)
 	while (str[i])
 	{
 		jump_space(str, &i);
-		if ((str[i] == '"' && (i == 0 || str[i - 1] != '\\'))
-		|| (str[i] == '\'' && (i == 0 || str[i - 1] != '\\')))
+		if ((str[i] == '"' && !odd_backslash(i, str))
+		|| (str[i] == '\'' && !odd_backslash(i, str)))
 			moove_next_quote(str[i], str, &i);
-		if (i == 0 || str[i - 1] != '\\')
+		if (!odd_backslash(i, str))
 		{
 			if (check_error_no_backslash(str, &i) == -1)
 				return (-1);

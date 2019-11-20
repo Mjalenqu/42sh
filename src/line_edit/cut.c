@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/07 09:34:46 by mjalenqu     #+#   ##    ##    #+#       */
-/*   Updated: 2019/05/28 09:42:29 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/17 20:19:33 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -27,7 +27,7 @@ char	*remove_cut(char *str, int start, int end)
 		res = ft_strdup("");
 		return (res);
 	}
-	res = malloc(sizeof(char) * (ft_strlen(str) + 1));
+	res = ft_malloc(sizeof(char) * (ft_strlen(str) + 1));
 	while (str[i])
 	{
 		while (str[i] && i >= start && i <= end)
@@ -62,6 +62,7 @@ void	cut_char(t_pos *pos)
 	else
 		pos->ans = remove_cut(pos->ans, pos->let_nb, pos->start_select);
 	tputs(tgetstr("ve", NULL), 1, ft_putchar);
+	pos->start_select = -1;
 	clear_and_print(pos);
 }
 

@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/08/22 16:43:27 by husahuc      #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 08:28:21 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/08 15:34:59 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -19,7 +19,7 @@ t_save_job		*add_list_save_job(t_job *save, t_save_job *chain)
 	t_save_job	*new;
 
 	new = NULL;
-	if (!(new = (t_save_job*)malloc(sizeof(t_save_job))))
+	if (!(new = (t_save_job*)ft_malloc(sizeof(t_save_job))))
 		return (NULL);
 	if (chain == NULL)
 	{
@@ -62,7 +62,7 @@ t_job_list		*new_job(t_job *j, int number)
 {
 	t_job_list	*job_list;
 
-	if (!(job_list = malloc(sizeof(t_job_list))))
+	if (!(job_list = ft_malloc(sizeof(t_job_list))))
 		return (NULL);
 	j->id = number;
 	job_list->j = j;

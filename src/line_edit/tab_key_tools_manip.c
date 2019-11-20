@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/16 10:46:14 by rlegendr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/02 08:54:37 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/25 15:20:14 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -42,7 +42,7 @@ char			*get_full_path(t_pos *pos)
 	while (pos->ans[len] && pos->ans[len] != ' ')
 		len += 1;
 	search = ft_strndup(pos->ans + i, len - i);
-	search = check_for_tilde(search, stock(NULL, 6), 0, 0);
+	search = check_for_tilde(search, stock(NULL, 6), -1, 0);
 	return (search);
 }
 

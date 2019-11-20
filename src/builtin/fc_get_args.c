@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/06/08 18:16:45 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/08 07:57:56 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/21 14:42:18 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -49,7 +49,7 @@ void			make_str_arg_into_int(t_fc *fc, t_hist *hist)
 	}
 	make_str_last_into_int(fc, hist);
 	if ((fc->int_first == -1 || fc->int_last == -1) && fc->error++ == 0)
-		ft_printf_err("%s: fc: history specification out of range\n", TERM);
+		ft_printf_err_fd("%s: fc: history specification out of range\n", TERM);
 }
 
 static void		check_if_str_args_need_correction(t_fc *fc, int check)

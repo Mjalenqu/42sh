@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/20 15:23:43 by husahuc      #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/10 10:19:01 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/04 12:23:19 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -42,8 +42,8 @@ static int			print_error(int status)
 {
 	if (status == 1)
 	{
-		ft_printf_err("42sh: export: {B.T.red.}error{eoc}:");
-		ft_printf_err(" Argument required\n");
+		ft_printf_err_fd("42sh: export: {B.T.red.}error{eoc}:");
+		ft_printf_err_fd(" Argument required\n");
 	}
 	return (0);
 }

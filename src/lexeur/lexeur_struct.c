@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   lexeur_struct.c                                  .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/21 17:38:30 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/07 14:29:59 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/26 13:34:12 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -24,15 +24,15 @@ char *red)
 	ft_strdel(&red);
 }
 
-t_lexeur	*fill_lex_while(char *buf, int *i, int token)
+t_lexeur	*fill_lex_while(char **buf, int *i, int token)
 {
 	t_lexeur	*res;
 
-	if (buf[0] == '\\' && find_token(buf, 1) != -1)
-		buf = change_buf(buf);
-	res = malloc(sizeof(t_lexeur));
+	if (odd_backslash(0, *buf) && find_token((*buf), 1) != -1)
+		*buf = change_buf(*buf);
+	res = ft_malloc(sizeof(t_lexeur));
 	if (token == -1)
-		fill_struct(res, buf, token, NULL);
+		fill_struct(res, *buf, token, NULL);
 	else
 		fill_struct(res, NULL, token, NULL);
 	(*i)++;
@@ -43,15 +43,15 @@ void		fill_lex_heredoc(t_lexeur ***array, int *j, char **buf, int *i)
 {
 	char		*tag;
 
-	(*array)[*j] = malloc(sizeof(t_lexeur));
+	(*array)[*j] = ft_malloc(sizeof(t_lexeur));
 	fill_struct_fd_in((*array)[*j], get_fd_in(buf[*i]), 7,
-	fill_redirection(buf, i));
+	fill_redirection_heredoc(buf, i));
 	tag = ft_strdup((*array)[*j]->redirection);
 	(*i)++;
 	while (buf[*i])
 	{
 		(*j)++;
-		(*array)[*j] = malloc(sizeof(t_lexeur));
+		(*array)[*j] = ft_malloc(sizeof(t_lexeur));
 		fill_struct((*array)[*j], buf[*i], -1, NULL);
 		if (!ft_strcmp(buf[*i], tag))
 		{
@@ -68,7 +68,7 @@ int *i, enum e_token token)
 {
 	t_lexeur *res;
 
-	res = malloc(sizeof(t_lexeur));
+	res = ft_malloc(sizeof(t_lexeur));
 	if (token == 4 || token == 6 || token == 9 || token == 7)
 	{
 		fill_struct_fd_in(res, get_fd_in(buf[*i]), token,

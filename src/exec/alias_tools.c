@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/25 15:57:47 by mjalenqu     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/16 08:38:42 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/04 12:23:19 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -17,7 +17,7 @@ void		add_alias(t_var **var, char *name, char *data)
 {
 	t_var	*start;
 
-	start = malloc(sizeof(t_var));
+	start = ft_malloc(sizeof(t_var));
 	start->name = name;
 	start->data = data;
 	start->type = ALIAS;
@@ -25,30 +25,25 @@ void		add_alias(t_var **var, char *name, char *data)
 	(*var) = start;
 }
 
-void		find_alias(t_process *p, t_var *var, int k)
+int			find_alias(t_process *p, int k)
 {
 	t_var	*tmp;
 
-	tmp = var;
+	tmp = stock(NULL, 6);
 	while (tmp && ft_strcmp(p->cmd[k], tmp->name))
 		tmp = tmp->next;
 	if (!tmp)
 	{
-		ft_putstr("21sh: alias: ");
-		ft_putstr(p->cmd[k]);
-		ft_putstr(": not found\n");
-		return ;
+		ft_printf_err_fd("42sh: alias: %s: not found\n", p->cmd[k]);
+		return (1);
 	}
-	ft_putstr("alias ");
-	ft_putstr(tmp->name);
-	ft_putstr("='");
-	ft_putstr(tmp->data);
-	ft_putstr("'\n");
+	ft_printf_fd("%s=%s\n", tmp->name, tmp->data);
+	return (0);
 }
 
 void		add_to_alias(t_var **var, char *name, char *data, t_var *prev)
 {
-	(*var) = malloc(sizeof(t_var));
+	(*var) = ft_malloc(sizeof(t_var));
 	prev->next = (*var);
 	(*var)->next = NULL;
 	(*var)->name = ft_strdup(name);
@@ -63,7 +58,7 @@ void		add_list_alias(t_var **var, char *name, char *data)
 	prev = NULL;
 	if (!(*var))
 	{
-		ft_printf("list alias");
+		ft_printf_fd("list alias");
 		add_alias(var, name, data);
 		stock(*var, 5);
 		return ;

@@ -6,7 +6,7 @@
 /*   By: rlegendr <marvin@le-101.fr>                +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/10/01 18:58:58 by rlegendr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 14:07:43 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/25 16:12:48 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -27,7 +27,7 @@ t_heredoc		*add_list_back_heredoc(t_heredoc *heredoc)
 	t_heredoc	*new;
 
 	new = NULL;
-	if (!(new = (t_heredoc*)malloc(sizeof(t_heredoc))))
+	if (!(new = (t_heredoc*)ft_malloc(sizeof(t_heredoc))))
 		return (NULL);
 	if (heredoc == NULL)
 	{
@@ -63,38 +63,53 @@ void			free_hdoc(t_heredoc *hdoc)
 
 int				going_to_heredoc_end(t_pos *pos, int i)
 {
+	int		check;
+
+	check = 0;
 	while (pos->ans[i])
 	{
-		if (i > 0 && pos->ans[i - 1] != 92)
+		if (pos->ans[i - 1] == 92 && pos->ans[i] != 92 && odd_backslash(i - 1,
+				pos->ans) == 0)
+			check = 1;
+		if ((i > 0 && pos->ans[i - 1] != 92) || check == 1)
 		{
 			if (pos->ans[i] == 32 || pos->ans[i] == '<' || pos->ans[i] == '>' ||
 				pos->ans[i] == '&' || pos->ans[i] == '|' || pos->ans[i] == '\n'
 				|| (pos->ans[i] == '$' && pos->ans[i + 1] == '{') ||
-				pos->ans[i] == '"' || pos->ans[i] == 39)
+				pos->ans[i] == '"' || pos->ans[i] == 39 || pos->ans[i] == ';')
 				break ;
 		}
+		check = 0;
 		i++;
 	}
 	return (i);
 }
 
-char			*remove_backslash(char *ans)
+char			*remove_backslash(char *ans, int i, int j)
 {
-	int			i;
-	int			j;
+	int			nb_backslash;
 	char		*new;
 
-	i = ft_strlen(ans);
-	new = ft_strnew(i);
-	ft_bzero(new, i);
-	i = 0;
-	j = 0;
-	while (ans[i])
+	new = ft_strnew(ft_strlen(ans));
+	ft_bzero(new, ft_strlen(ans));
+	while (i <= ft_strlen(ans))
 	{
-		if (ans[i] != 92)
-			new[j++] = ans[i];
-		i++;
+		nb_backslash = 0;
+		while (ans[i] == 92)
+		{
+			nb_backslash++;
+			i++;
+		}
+		if (nb_backslash)
+		{
+			while (nb_backslash > 1)
+			{
+				new[j++] = 92;
+				nb_backslash -= 2;
+			}
+		}
+		else
+			new[j++] = ans[i++];
 	}
-	ft_strdel(&ans);
 	return (new);
 }

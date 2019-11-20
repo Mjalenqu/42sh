@@ -6,7 +6,7 @@
 /*   By: dcoat <marvin@le-101.fr>                   +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/01/07 19:51:31 by dcoat        #+#   ##    ##    #+#       */
-/*   Updated: 2019/05/09 11:39:15 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/21 12:56:30 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -203,6 +203,7 @@ char						*handle_plus_minus_with_zero(t_data data,
 **		PRINT_PRINTF
 */
 
+int							check_if_color(t_data *d, int i);
 int							print_printf(t_data *data, int i);
 
 /*

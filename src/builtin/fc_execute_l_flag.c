@@ -6,7 +6,7 @@
 /*   By: vde-sain <marvin@le-101.fr>                +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/06/08 18:30:58 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/09/06 13:08:20 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/21 13:03:40 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -20,8 +20,8 @@ static void		print_l_flag(t_fc *fc, t_hist *hist)
 		while (fc->int_first <= fc->int_last && hist->next->next)
 		{
 			if (ft_strchr(fc->flags, 'n') == NULL)
-				ft_printf("%d", hist->cmd_no + 1);
-			ft_printf("	%s\n", hist->cmd);
+				ft_printf_fd("%d", hist->cmd_no + 1);
+			ft_printf_fd("	%s\n", hist->cmd);
 			fc->int_first += 1;
 			hist = hist->next;
 		}
@@ -31,8 +31,8 @@ static void		print_l_flag(t_fc *fc, t_hist *hist)
 		while (fc->int_first >= fc->int_last && hist)
 		{
 			if (ft_strchr(fc->flags, 'n') == NULL)
-				ft_printf("%d", hist->cmd_no + 1);
-			ft_printf("	%s\n", hist->cmd);
+				ft_printf_fd("%d", hist->cmd_no + 1);
+			ft_printf_fd("	%s\n", hist->cmd);
 			fc->int_first -= 1;
 			hist = hist->prev;
 			if (fc->int_first == fc->int_last && (fc->int_first < 0 ||

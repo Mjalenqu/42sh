@@ -6,7 +6,7 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/12 13:09:07 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/10 10:32:24 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/22 13:47:05 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -18,9 +18,10 @@ int		main_alias(t_process *p, t_var **var)
 {
 	char	*name;
 	char	*data;
-	int		i;
 	int		k;
+	int		error;
 
+	error = 0;
 	k = 0;
 	if (!p->cmd[1])
 		return (print_alias(*var));
@@ -30,16 +31,10 @@ int		main_alias(t_process *p, t_var **var)
 		data = init_data(p->cmd[k]);
 		if (check_name(name) == 1)
 			return (print_err(name, data));
-		i = 0;
-		while (p->cmd[k][i] && p->cmd[k][i] != '=')
-			i++;
-		if (i == 0 || !p->cmd[k][i])
-			find_alias(p, (*var), k);
-		else
-			add_list_alias(var, name, data);
-		ft_free_deux(name, data);
+		if (looking_for_aliases(p, k, name, data) == 1)
+			error = 1;
 	}
-	return (0);
+	return (error);
 }
 
 int		check_a(t_process *p, t_var **var)

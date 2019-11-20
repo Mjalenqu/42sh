@@ -1,22 +1,30 @@
 /* ************************************************************************** */
 /*                                                          LE - /            */
 /*                                                              /             */
-/*   double_quote.c                                   .::    .:/ .      .::   */
+/*   ft_isalnum.c                                     .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
-/*   Created: 2019/05/15 13:55:20 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/05/20 18:04:03 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Created: 2019/10/17 13:18:16 by mjalenqu     #+#   ##    ##    #+#       */
+/*   Updated: 2019/10/17 16:30:37 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
-#include "../../includes/lexeur.h"
+#include "../../includes/ft_str.h"
 
-void		fill_lex_doudle_quote(char *buf, int *i, int *start)
+int		ft_isalnum(char *str)
 {
-	(*i)++;
-	*start = *i;
-	while (buf[*i] && buf[*i] != '"')
-		(*i)++;
+	int	i;
+
+	i = 0;
+	while (str[i])
+	{
+		if ((str[i] < 'a' || str[i] > 'z') &&
+			(str[i] < 'A' || str[i] > 'Z') &&
+			(str[i] < '0' || str[i] > '9'))
+			return (1);
+		i++;
+	}
+	return (0);
 }

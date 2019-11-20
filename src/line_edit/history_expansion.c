@@ -6,12 +6,12 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/22 07:05:34 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/07 17:31:49 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/14 09:29:39 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
-#include "termcaps.h"
+#include "../../includes/termcaps.h"
 
 int				check_if_inside_symbols(char *ans, int i)
 {
@@ -54,22 +54,27 @@ int				replace_expansion_by_value(t_pos *pos, t_hist *hist, int i,
 	return (error);
 }
 
-void			print_new_ans_after_expansion_replace(t_pos *pos)
+int				print_new_ans_after_expansion_replace(t_pos *pos, int error)
 {
-	pos->let_nb = ft_strlen(pos->ans);
-	pos->len_ans = pos->let_nb;
-	short_update(pos, get_len_with_lines(pos));
-	clean_at_start(pos);
-	print_ans(pos, 0, 0);
+	if (error != -1)
+	{
+		pos->let_nb = ft_strlen(pos->ans);
+		pos->len_ans = pos->let_nb;
+		short_update(pos, get_len_with_lines(pos));
+		clean_at_start(pos);
+		print_ans(pos, 0, 0);
+		return (1);
+	}
+	return (0);
 }
 
-void			check_history_expansion(t_pos *pos, t_hist *hist, int i,
+int				check_history_expansion(t_pos *pos, t_hist *hist, int i,
 				int error)
 {
 	char		*original_ans;
 
 	if (ft_strchr(pos->ans, '!') == NULL || pos->active_heredoc == 1)
-		return ;
+		return (0);
 	original_ans = ft_strdup(pos->ans);
 	while (pos->ans && pos->ans[++i])
 	{
@@ -89,6 +94,5 @@ void			check_history_expansion(t_pos *pos, t_hist *hist, int i,
 		}
 	}
 	free(original_ans);
-	if (error != -1)
-		print_new_ans_after_expansion_replace(pos);
+	return (print_new_ans_after_expansion_replace(pos, error));
 }

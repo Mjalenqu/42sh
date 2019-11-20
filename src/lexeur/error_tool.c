@@ -6,12 +6,23 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/10/04 11:05:11 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 14:32:15 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/12 11:39:11 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
 #include "../../includes/check_error.h"
+
+char	*error_heredoc_go_next_init(int j, int *i, char *str, char **res)
+{
+	char	*tmp;
+
+	(*res) = NULL;
+	tmp = get_tag(str, i);
+	(*i) += g_fill_token[7].size;
+	ft_strdel(&tmp);
+	return (get_tag(str, &j));
+}
 
 void	error_heredoc_go_next(char *str, int *i)
 {
@@ -19,9 +30,8 @@ void	error_heredoc_go_next(char *str, int *i)
 	char	*tmp;
 	int		s;
 
-	tag = get_tag(str, i);
-	(*i) += g_fill_token[7].size;
-	while (str[*i])
+	tag = error_heredoc_go_next_init(0, i, str, &tmp);
+	while (str[++(*i)])
 	{
 		jump_space(str, i);
 		s = *i;
@@ -35,7 +45,8 @@ void	error_heredoc_go_next(char *str, int *i)
 			return ;
 		}
 		ft_strdel(&tmp);
-		(*i)++;
+		if (!(str[*i]))
+			break ;
 	}
 	if (tmp)
 		ft_strdel(&tmp);

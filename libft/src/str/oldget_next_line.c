@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                          LE - /            */
 /*                                                              /             */
-/*   get_next_line.c                                  .::    .:/ .      .::   */
+/*   oldget_next_line.c                               .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: shthevak <marvin@le-101.fr>                +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
-/*   Created: 2017/12/20 16:06:09 by shthevak     #+#   ##    ##    #+#       */
-/*   Updated: 2019/03/16 12:40:16 by shthevak    ###    #+. /#+    ###.fr     */
+/*   Created: 2017/12/20 16:06:09 by mjalenqu     #+#   ##    ##    #+#       */
+/*   Updated: 2019/11/04 12:23:39 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -26,7 +26,7 @@ char	**multi_fd(int fd, t_stock **list)
 		if (tmp->fd == fd)
 			return (&tmp->str);
 	}
-	if (!(n_list = (t_stock*)malloc(sizeof(t_stock))))
+	if (!(n_list = (t_stock*)ft_malloc(sizeof(t_stock))))
 		return (NULL);
 	n_list->fd = fd;
 	n_list->str = NULL;
@@ -38,7 +38,7 @@ char	**multi_fd(int fd, t_stock **list)
 	return (&n_list->str);
 }
 
-char	*malloc_str(char *str, char **line)
+char	*ft_malloc_str(char *str, char **line)
 {
 	int		i;
 	char	*tmp;
@@ -91,7 +91,7 @@ int		get_next_line(const int fd, char **line)
 		if (ft_strstr(*str, "\n") != NULL)
 			break ;
 	}
-	*str = malloc_str(*str, line);
+	*str = ft_malloc_str(*str, line);
 	if (*str == NULL && ft_strcmp(*line, "\0") == 0)
 		return (0);
 	return (1);

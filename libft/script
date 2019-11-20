@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for file in src/*/*.c
+do
+	echo "Traitement de $file ..."
+	sed -i '' -e "s/malloc/ft_malloc/g" "$file"
+done

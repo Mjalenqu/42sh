@@ -6,7 +6,7 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/17 17:37:07 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 10:42:27 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/07 18:01:09 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -33,7 +33,7 @@ void			change_job(t_job **j, t_process **start)
 	(*j)->p->next = NULL;
 	(*j)->p = *start;
 	(*j) = (*j)->next;
-	(*j)->p = malloc(sizeof(t_process));
+	(*j)->p = ft_malloc(sizeof(t_process));
 	*start = (*j)->p;
 }
 
@@ -48,9 +48,8 @@ int				check_moove_index(t_lexeur **res, int *t)
 	return (0);
 }
 
-t_redirect		*init_var(int *done, int *t, int *i)
+t_redirect		*init_var(int *t, int *i)
 {
-	(*done) = 0;
 	(*t) = *i;
 	return (NULL);
 }

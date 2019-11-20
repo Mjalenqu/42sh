@@ -33,7 +33,7 @@ void	write_alias(t_var *var, t_pos *p)
 
 t_var	*fill_alias(t_var *var, char *line)
 {
-	var->next = malloc(sizeof(t_var));
+	var->next = ft_malloc(sizeof(t_var));
 	var = var->next;
 	var->name = init_name(line);
 	var->data = init_data(line);

@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/10 09:57:21 by rlegendr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 13:42:32 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/31 16:35:26 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -15,19 +15,21 @@
 
 void			init_terminfo(t_pos *pos)
 {
+	tcsetattr(0, TCSANOW, &(pos->old_term));
 	tcgetattr(0, &(pos->my_term));
-	tcgetattr(0, &(pos->old_term));
 	pos->my_term.c_lflag &= ~(ICANON);
 	pos->my_term.c_lflag &= ~(ECHO);
 	pos->my_term.c_cc[VMIN] = 1;
 	pos->my_term.c_cc[VTIME] = 0;
-	tcsetattr(0, TCSADRAIN, &(pos->my_term));
+	tcsetattr(0, TCSANOW, &(pos->my_term));
 }
 
 void			get_cursor_info(t_pos *pos, int *li, int *co, int i)
 {
 	char		*buf;
 
+	(void)*co;
+	tcsetattr(0, TCSANOW, &pos->my_term);
 	buf = ft_strnew(10);
 	write(1, "\033[6n", 5);
 	read(1, buf, 8);
@@ -44,12 +46,6 @@ void			get_cursor_info(t_pos *pos, int *li, int *co, int i)
 			*li = pos->max_li;
 	}
 	i = 0;
-	while (buf[i] && buf[i] != ';')
-		i++;
-	if (buf[i] == '\0')
-		*co = -1;
-	else
-		*co = ft_atoi(buf + i + 1) - 1 + pos->len_prompt;
 	free(buf - 1);
 }
 
@@ -81,6 +77,9 @@ void			*stock(void *to_stock, int usage)
 
 static void		init_classic_var(t_pos *pos)
 {
+	if (pos->ans)
+		ft_strdel(&pos->ans);
+	pos->ans = ft_strnew(0);
 	pos->history_mode = 0;
 	pos->ans_printed = 0;
 	pos->let_nb = 0;
@@ -98,6 +97,11 @@ static void		init_classic_var(t_pos *pos)
 	pos->hdoc = NULL;
 	pos->last_cmd_on_bg = 0;
 	pos->braceparam = 0;
+	pos->act_fd_out = 1;
+	pos->act_fd_error = 2;
+	pos->separator = 0;
+	pos->tab_key_printed = 0;
+	pos->error_printed = 0;
 }
 
 void			init_pos(t_pos *pos, int usage)
@@ -108,9 +112,10 @@ void			init_pos(t_pos *pos, int usage)
 		pos->len_prompt = 2;
 	else
 		pos->len_prompt = ft_strlen(pos->prompt) % pos->max_co;
-	pos->ans = ft_strnew(0);
 	pos->saved_ans = NULL;
 	pos->len_ans = pos->len_prompt;
+	if (pos->ctrl_hist_cmd != NULL)
+		ft_strdel(&pos->ctrl_hist_cmd);
 	init_classic_var(pos);
 	if (usage)
 	{

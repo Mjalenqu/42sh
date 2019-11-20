@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/16 11:50:38 by husahuc      #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 13:44:16 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/14 10:13:09 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -21,7 +21,7 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 
-# define LEN_BUILTIN_LIST 18
+# define LEN_BUILTIN_LIST 19
 # define TERM "42sh"
 
 typedef struct s_var		t_var;
@@ -31,12 +31,19 @@ typedef struct s_hash		t_hash;
 typedef struct s_job_list	t_job_list;
 typedef struct s_job		t_job;
 typedef struct s_pos		t_pos;
+typedef struct s_save_job	t_save_job;
 typedef struct	s_builtin
 {
 	const char	*name;
 	int			(*ptr_builtin)(t_process*, t_var**);
 	int			modify_data;
 }				t_builtin;
+
+typedef struct	s_fc_list
+{
+	char				*cmd;
+	struct s_fc_list	*next;
+}				t_fc_list;
 
 typedef struct	s_fc
 {
@@ -71,6 +78,12 @@ int				remove_list_var(t_var **ptr_var, int type, char *name);
 int				verif_int(char *name, int *error);
 int				comp_num_operator(char *name1, char *type, char *name2,
 				int *error);
+
+/*
+**	FT_SHTHEME
+*/
+
+int				ft_shtheme(t_process *p, t_var **var);
 
 /*
 **	FT_FG_BG_PLUS_AND_MINUS_C
@@ -116,6 +129,10 @@ int				ft_bg(t_process *p, t_var **var);
 **	FT_EXIT_C
 */
 
+void			write_alias_on_exit(t_var *var);
+void			free_pos(t_pos *pos);
+void			kill_last_job(t_job_list *jb, t_pos *pos, t_var *var,
+				t_save_job *save);
 void			free_env_list(t_var *var);
 int				ft_exit(t_process *p, t_var **var);
 /*
@@ -127,13 +144,20 @@ void			check_if_e_flag_induced(t_fc *fc, t_process *p, t_hist *hist);
 void			induced_e_flag_check_first_arg(t_fc *fc, t_process *p);
 
 /*
+**	FC_LIST_C
+*/
+
+char			**convert_fc_list_to_tab(t_fc_list *fc_list);
+t_fc_list		*add_list_back_fc_list(t_fc_list *fc_list, char *line);
+
+/*
 **		FC_TOOLS.C
 */
 
 void			remove_cmd_from_hist(t_hist *hist);
 char			*get_program_pwd(char *pwd, int i);
 void			overwrite_history_file(t_hist *hist);
-void			place_new_cmds_in_history(char **new_cmds, t_hist *hist);
+void			place_new_cmds_in_history(char *new_cmds, t_hist *hist);
 void			print_fc_usage(void);
 
 /*
@@ -177,15 +201,15 @@ void			prepare_s_flag(t_fc *fc, t_hist *hist, t_var **var);
 
 void			send_e_flag_to_exec(t_fc *fc, t_hist *hist, char **env);
 void			exec_ide_with_tmp_file(t_fc *fc, int fd, char **env);
-void			exec_new_cmds(char **new_cmds);
-char			**recover_new_cmds_from_tmp(char **new_cmds, int fd, int i,
-				int ret);
+void			exec_new_cmds(char **new_cmds, int i, t_hist *hist, t_var *var);
+char			**recover_new_cmds_from_tmp(char **new_cmds, int fd, int ret,
+				char *line);
 
 /*
 **		FC_PREPARE_E_FLAG.C
 */
 
-char			**get_ide_paths(char **env);
+char			**get_ide_paths(char **env, int usage, t_fc *fc);
 void			prepare_e_flag(t_fc *fc, t_hist *hist, t_var **var, int i);
 void			correct_int_first_and_int_last_for_e_flag(t_fc *fc,
 				t_hist *hist);
@@ -196,22 +220,25 @@ char			*check_new_cmd_is_valid(char *new_cmds, char **paths);
 */
 
 void			free_fc_struct(t_fc *fc);
+int				get_value_of_cmd_return(t_fc fc, t_var *var);
+int				valid_heredocs(char *ans, int i, int open);
 
 /*
 **	FT_HASH_C
 */
 
 int				ft_hash(t_process *p, t_var **var);
-void			exec_hash_with_flag(t_hash **hash, char flag, char **cmd,
+int				exec_hash_with_flag(t_hash **hash, char flag, char **cmd,
 				t_var **var);
 void			print_path_hash(t_hash **hash, char **cmd);
-void			print_part_of_hash_table(t_hash **hash, char **cmd);
+int				print_part_of_hash_table(t_hash **hash, char **cmd, int ret);
 
 /*
 **	HASH_D_FLAG_C
 */
 
-void			remove_selected_entry_hash(t_hash **hash, char **cmd);
+int				check_if_table_is_empty(t_hash **hash);
+int				remove_selected_entry_hash(t_hash **hash, char **cmd);
 void			delete_middle_link(t_hash *tmp);
 void			delete_first_link(t_hash **hash, t_hash *tmp, int key);
 
@@ -239,6 +266,7 @@ int				ft_unsetenv(t_process *p, t_var **var);
 **	FT_ENV_C
 */
 
+t_var			*copy_env(t_var *var);
 int				ft_env(t_process *p, t_var **var);
 
 /*
@@ -247,6 +275,15 @@ int				ft_env(t_process *p, t_var **var);
 
 int				go_through_process_cmd(t_process *p, t_var **new_env,
 				t_var **head, int ret);
+
+/*
+**	FT_ENV_I_NEW_ENV_C
+*/
+
+t_var			*copy_old_env(t_var *old);
+void			add_list_front_env(t_var *old, t_var **head);
+t_var			*add_front_spe_params(t_var *old, t_var *new_env);
+void			print_all_env(t_var *var);
 
 /*
 **	TOOL_C
@@ -294,17 +331,25 @@ char			*move_to_new_dir(char *cmd, t_var **var, char *new_path);
 char			*print_pwd(t_var *var);
 char			*verif_p_option_path(char *new_path, int i, int absolute);
 int				verif_path(char *path, int mute, int usage);
-int				check_arguments_number(t_process *p, int *i, int *option);
+int				check_arguments_number(t_process *p, int *i, int *option,
+				t_var *old_env);
 
 /*
 **	FT_CD_CHECK_CDPATH_C
 */
 
+void			restore_old_env(t_var *old_env, t_var **var, t_pos *pos);
 char			*verif_path_in_cdpath(char *path, t_var *var, char **cmd,
 				int j);
 void			print_cd_error(char *path, int i, int mute, int usage);
-int				finish_ft_cd(char *new_path, t_pos *pos, t_var **var,
+int				finish_ft_cd(char *new_path, t_pos *pos, t_var *old_env,
 				int option);
+
+/*
+**	FT_CD_ERROR_C
+*/
+
+char			*error_in_new_path(char *new_path);
 
 /*
 **	FC_PREPARE_E_FLAG_TOOL.C
@@ -323,6 +368,7 @@ void			print_new_env(t_var **new_env, t_var **head);
 **	FT_JOBS_C
 */
 
+pid_t			get_pid_fg(t_process *p);
 int				ft_jobs(t_process *p, t_var **var);
 char			*built_job_name(t_job_list *j, char *name);
 int				ft_jobs_option(char **cmd, int *i);
@@ -333,7 +379,7 @@ int				ft_jobs_option(char **cmd, int *i);
 
 void			print_selected_jobs(t_job_list *j, int option, char *arg);
 void			print_all_jobs(t_job_list *j, int option);
-void			print_current_job(t_job_list *j, int option, char *name);
+void			print_current_job(t_job_list *j, int option);
 void			print_status_job(char status);
 
 t_job			*find_plus(t_job_list *j);

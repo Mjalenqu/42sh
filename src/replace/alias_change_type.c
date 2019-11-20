@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   alias_change_type.c                              .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/08/18 18:02:37 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/07 15:54:04 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/06 10:44:13 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -19,7 +19,7 @@ char		**make_list_to_ar(t_alias *alias)
 	char	**res;
 	int		i;
 
-	res = malloc(sizeof(char *) * (cnt_list(alias) + 1));
+	res = ft_malloc(sizeof(char *) * (cnt_list(alias) + 1));
 	i = 0;
 	while (alias)
 	{
@@ -36,7 +36,7 @@ void		make_ar_to_list_while(int *i, char **str, t_alias **alias,
 t_alias *prev)
 {
 	if (!(*alias))
-		(*alias) = malloc(sizeof(t_alias));
+		(*alias) = ft_malloc(sizeof(t_alias));
 	if (*i == 0)
 		(*alias)->prev = NULL;
 	else
@@ -45,7 +45,7 @@ t_alias *prev)
 	prev = (*alias);
 	if (str[*i + 1])
 	{
-		(*alias)->next = malloc(sizeof(t_alias));
+		(*alias)->next = ft_malloc(sizeof(t_alias));
 		(*alias) = (*alias)->next;
 	}
 	(*i)++;
@@ -60,7 +60,7 @@ t_alias		*make_ar_to_list(char **str)
 
 	if (!str || !(str[0]))
 		return (NULL);
-	alias = malloc(sizeof(t_alias));
+	alias = ft_malloc(sizeof(t_alias));
 	prev = NULL;
 	start = alias;
 	i = 0;
@@ -95,24 +95,27 @@ int			check_simple_or_multiple(char *str)
 char		*del_space(char *str)
 {
 	int		i;
-	int		s;
-	char	*tmp;
 	char	*res;
 
-	i = 0;
-	res = ft_strdup("");
-	while (str[i])
+	i = ft_strlen(str) - 1;
+	while (i >= 0 && str[i] && ((str[i] >= 9 && str[i] <= 13) || str[i] == ' '))
 	{
-		jump_space(str, &i);
-		s = i;
-		while (str[i] && ((str[i] < 9 || str[i] > 13) && str[i] != ' '))
-			i++;
-		tmp = ft_strsub(str, s, i - s);
-		ft_strjoin_free(&res, tmp);
-		ft_strdel(&tmp);
+		if (str[i] && (!odd_backslash(i - 1, str) && str[i] == '"'))
+		{
+			i--;
+			while (str[i] && (!odd_backslash(i - 1, str) && str[i] != '"'))
+				i--;
+		}
+		if (str[i] && (!odd_backslash(i - 1, str) && str[i] == '\''))
+		{
+			i--;
+			while (str[i] && (!odd_backslash(i - 1, str) && str[i] != '\''))
+				i--;
+		}
 		if (str[i])
-			i++;
+			i--;
 	}
+	res = ft_strsub(str, 0, i + 1);
 	ft_strdel(&str);
 	return (res);
 }

@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   ft_strjoinf.c                                    .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/03/28 14:29:47 by mjalenqu     #+#   ##    ##    #+#       */
-/*   Updated: 2019/09/09 13:32:38 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/24 10:08:13 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -19,8 +19,8 @@ char	*ft_strjoinf(char *s1, char *s2, int mode)
 
 	tmp = ft_strjoin(s1, s2);
 	if (mode == 1 || mode == 3)
-		free(s1);
+		ft_strdel(&s1);
 	if (mode == 2 || mode == 3)
-		free(s2);
+		ft_strdel(&s2);
 	return (tmp);
 }

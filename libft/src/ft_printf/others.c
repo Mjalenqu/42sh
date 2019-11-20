@@ -40,7 +40,7 @@ long		*init_tab_arg_nb(t_data data)
 	int		i;
 
 	i = 0;
-	if (!(data.tab_arg_nb = (long*)malloc(sizeof(long) * data.args_nb)))
+	if (!(data.tab_arg_nb = (long*)ft_malloc(sizeof(long) * data.args_nb)))
 		return (NULL);
 	while (i < data.args_nb)
 	{

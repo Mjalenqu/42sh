@@ -6,12 +6,38 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/08/18 18:13:32 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/08/18 18:13:47 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/28 16:06:13 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
 #include "../../includes/lexeur.h"
+
+void		check_quote_double(char *str, int *i, int *quote_double)
+{
+	if (str[*i + 1] == '"')
+	{
+		(*quote_double) = 0;
+		(*i)++;
+	}
+	else
+		(*quote_double) = (*quote_double == 1) ? 0 : 1;
+	if (str[*i] && str[*i + 1] && (str[*i + 1] != '"' && str[*i + 1] != '\''))
+		(*i)++;
+}
+
+void		check_quote_simple(char *str, int *i, int *quote_simple)
+{
+	if (str[*i + 1] == '\'')
+	{
+		(*quote_simple) = 0;
+		(*i)++;
+	}
+	else
+		(*quote_simple) = (*quote_simple == 1) ? 0 : 1;
+	if (str[*i] && str[*i + 1] && (str[*i + 1] != '"' && str[*i + 1] != '\''))
+		(*i)++;
+}
 
 void		cnt_solve_back_slash(char *buf, int *i, int *cnt)
 {
@@ -28,47 +54,13 @@ void		cnt_solve_back_slash(char *buf, int *i, int *cnt)
 	}
 }
 
-int			back_slash_count(char *str)
+void		solve_quote_simple(char *str, char **res, int *i, int j)
 {
-	int		a;
-	int		i;
-
-	a = 0;
-	i = 0;
-	while (str[i])
+	if (str[*i] == '\'')
 	{
-		if (str[i] == '\\' && str[i + 1] && str[i + 1] != '"'
-		&& str[i + 1] != '\'')
-			i++;
-		a++;
-		if (str[i])
-			i++;
+		while (str[*i] && str[*i] == '\'')
+			(*i)++;
 	}
-	return (a);
-}
-
-int			del_back_slash_double_quote(int *k, int j, char ***ar)
-{
-	(*k)++;
-	while ((*ar)[j][*k])
-	{
-		if ((*ar)[j][*k] == '"' && (*k == 0 ||
-			(*ar)[j][*k - 1] != '\\'))
-			return (1);
-		(*k)++;
-	}
-	return (0);
-}
-
-int			del_back_slash_simple_quote(int *k, int j, char ***ar)
-{
-	(*k)++;
-	while ((*ar)[j][*k])
-	{
-		if ((*ar)[j][*k] == '\'' && (*k == 0 ||
-			(*ar)[j][*k - 1] != '\\'))
-			return (1);
-		(*k)++;
-	}
-	return (0);
+	if (str[*i])
+		(*res)[j] = str[*i];
 }

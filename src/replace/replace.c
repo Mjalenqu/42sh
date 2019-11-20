@@ -6,7 +6,7 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/04/15 17:27:56 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/16 12:42:36 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/06 08:42:21 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -49,28 +49,23 @@ int			check_spe(t_alias *alias, t_var *var)
 	return (0);
 }
 
-int			remove_env_while(t_alias *alias, t_var *var, t_replace *replace)
+int			remove_env_while(t_alias *alias, t_var *var)
 {
 	int		done;
+	t_alias	*tmp;
 
 	done = 0;
-	if (check_alias(alias->data, var) == 1 && alias->data[0] != '\\')
-		replace_alias(alias, var, replace);
-	check_spe(alias, var);
-	check_tok(alias, var, replace);
-	while (alias)
+	tmp = alias;
+	while (tmp)
 	{
-		if (alias->data && alias->data[0] != '\'')
+		if (tmp->data && condition_find_dollar(tmp->data, 0) &&
+		check_backslash_var(tmp->data))
 		{
-			if (alias->data && ft_strstr(alias->data, "$") != NULL &&
-			check_backslash_var(alias->data))
-			{
-				done = 1;
-				replace_var(var, alias);
-				break ;
-			}
+			done = 1;
+			replace_var(var, tmp);
+			break ;
 		}
-		alias = alias->next;
+		tmp = tmp->next;
 	}
 	return (done);
 }
@@ -94,10 +89,23 @@ void		free_alias(t_alias *alias)
 char		**start_split(t_var *start, char *str)
 {
 	char		**ar;
+	t_alias		*al;
+	t_replace	*r;
 
 	ar = split_space(str);
 	if (!start)
 		return (ar);
+	al = make_ar_to_list(ar);
+	init_replace(&r);
+	r->name = ft_strdup(al->data);
+	check_tok(al, start, r);
+	if (check_alias(al->data, start) == 1 &&
+	al->data[0] != '\\')
+		replace_alias(al, start, r);
+	check_spe(al, start);
+	ar = make_list_to_ar(al);
 	ft_strdel(&str);
+	free_replace(r);
+	free_alias(al);
 	return (ar);
 }

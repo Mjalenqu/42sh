@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/26 19:11:29 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 13:43:08 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/07 18:34:27 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -74,34 +74,45 @@ int			check_access_path(char *path, int usage, int i, int mute)
 
 int			verif_path(char *path, int mute, int usage)
 {
-	DIR		*file;
-	int		i;
+	DIR			*file;
+	int			i;
+	struct stat	s_type;
 
+	if (path != NULL)
+		lstat(path, &s_type);
 	file = NULL;
 	i = ft_strlen(path) - 2;
 	while (i > 0 && path[i] != '/')
 		i--;
-	if (usage == 1 && (path == NULL || (path != NULL &&
-				(file = opendir(path)) == NULL)))
+	if (usage == 1 && (path == NULL || (s_type.st_mode & S_IFMT) != S_IFDIR))
 	{
-		print_cd_error(path, i, mute, 0);
-		return (0);
+		if (path == NULL || (((s_type.st_mode & S_IFMT) != S_IFDIR) &&
+					access(path, F_OK) != -1))
+		{
+			print_cd_error(path, i, mute, 0);
+			return (0);
+		}
+		if (check_access_path(path, usage, i, mute) == 0)
+			return (0);
 	}
-	else if (usage == 1)
-		closedir(file);
-	return (check_access_path(path, usage, i, mute));
+	else
+		return (check_access_path(path, usage, i, mute));
+	return (1);
 }
 
-int			check_arguments_number(t_process *p, int *i, int *option)
+int			check_arguments_number(t_process *p, int *i, int *option,
+			t_var *old_env)
 {
 	if ((*option = get_cd_option(p->cmd, i, 0, 0)) == -1)
 	{
-		ft_printf_err("cd: usage: cd [-L|-P] [dir]\n");
+		free_env_list(old_env);
+		ft_printf_err_fd("cd: usage: cd [-L|-P] [dir]\n");
 		return (1);
 	}
 	if (p->cmd[*i] && p->cmd[*i + 1])
 	{
-		ft_printf_err("cd: too many arguments\n");
+		free_env_list(old_env);
+		ft_printf_err_fd("cd: too many arguments\n");
 		return (1);
 	}
 	return (0);

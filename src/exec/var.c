@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   var.c                                            .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/09/16 14:49:17 by mjalenqu     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 14:37:10 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/25 17:08:46 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -44,7 +44,7 @@ void		remoove_all_quote(char **str)
 {
 	char **al;
 
-	al = malloc(sizeof(char *) * 3);
+	al = ft_malloc(sizeof(char *) * 3);
 	al[2] = 0;
 	al[0] = init_name(*str);
 	al[1] = init_data(*str);

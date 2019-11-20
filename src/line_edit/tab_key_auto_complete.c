@@ -6,7 +6,7 @@
 /*   By: rlegendr <marvin@le-101.fr>                +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/16 11:21:44 by rlegendr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 12:58:57 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/25 16:11:14 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -97,12 +97,7 @@ void		auto_complete(t_pos *pos, t_htab *htab, char *name,
 			pos->ans[pos->let_nb] != '&' && pos->ans[pos->let_nb] != '|' &&
 			pos->ans[pos->let_nb] != ';')
 		pos->let_nb += 1;
-	if (is_a_directory(pos->ans, pos))
-		add_slash_on_ans(pos);
-	else if (pos->ans[pos->let_nb] == 32)
-		right_arrow(pos);
-	else if (pos->braceparam != 1)
-		input_is_printable_char(pos, " ");
+	finish_auto_complete(pos);
 	clean_at_start(pos);
 	tputs(tgetstr("cd", NULL), 1, ft_putchar);
 	tputs(tgetstr("vi", NULL), 1, ft_putchar);
@@ -121,12 +116,8 @@ t_htab		*prepare_auto_complete(t_pos *pos, t_htab *htab, char *name)
 
 	wildcard = 0;
 	i = 0;
-	while (name[i])
-	{
-		if (name[i] == '*')
-			wildcard = 1;
-		i += 1;
-	}
+	if (ft_strchr(name, '*'))
+		wildcard = 1;
 	htab = get_current_match(htab, name, wildcard);
 	if (wildcard == 0)
 		htab = get_intelligent_match(htab, name);

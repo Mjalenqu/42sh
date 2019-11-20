@@ -6,7 +6,7 @@
 /*   By: vde-sain <marvin@le-101.fr>                +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/16 07:22:34 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 14:30:56 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/14 11:22:08 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -80,6 +80,8 @@ t_hist		*exit_control_search(t_hist *hist, t_pos *pos)
 		hist = hist->next;
 	if (pos->ans && ft_strlen(pos->ans) > 0)
 	{
+		if (hist->cmd)
+			ft_strdel(&hist->cmd);
 		hist->cmd = ft_strdup(pos->ans);
 		hist->next = add_list_back_hist(hist);
 	}

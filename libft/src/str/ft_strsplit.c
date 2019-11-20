@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   ft_strsplit.c                                    .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: shthevak <marvin@le-101.fr>                +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
-/*   Created: 2019/03/14 05:03:18 by shthevak     #+#   ##    ##    #+#       */
-/*   Updated: 2019/05/16 14:18:14 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Created: 2019/03/14 05:03:18 by mjalenqu     #+#   ##    ##    #+#       */
+/*   Updated: 2019/11/04 12:23:39 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -52,7 +52,7 @@ char			**ft_strsplit(const char *s, char c)
 
 	if (s == NULL)
 		return (NULL);
-	if (!(tab = malloc(sizeof(tab) * (nbmots(s, c) + 1))))
+	if (!(tab = ft_malloc(sizeof(tab) * (nbmots(s, c) + 1))))
 		return (NULL);
 	i = 0;
 	j = 0;

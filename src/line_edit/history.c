@@ -43,7 +43,7 @@ t_hist		*add_list_back_hist(t_hist *hist)
 	t_hist	*new;
 
 	new = NULL;
-	if (!(new = (t_hist*)malloc(sizeof(t_hist))))
+	if (!(new = (t_hist*)ft_malloc(sizeof(t_hist))))
 		return (NULL);
 	if (hist == NULL)
 	{
@@ -63,7 +63,7 @@ int			open_hist(t_pos *pos)
 {
 	char *pwd;
 
-	pwd = getcwd(NULL, 255);
+	pwd = getcwd(NULL, 1000);
 	pwd = ft_strjoinf(pwd, "/.history", 1);
 	pos->history = open(pwd, O_RDWR | O_APPEND | O_CREAT, 0666);
 	ft_strdel(&pwd);

@@ -36,7 +36,7 @@ void		fill_job(t_job *j, t_lexeur **res)
 				j->split = ';';
 			if (res[i + 1])
 			{
-				j->next = malloc(sizeof(t_job));
+				j->next = ft_malloc(sizeof(t_job));
 				j = j->next;
 				init_job(j);
 			}

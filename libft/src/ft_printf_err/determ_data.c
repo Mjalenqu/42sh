@@ -28,7 +28,7 @@ char		*add_char_end_string_err(char *dest, char *lett, int i)
 	int		j;
 
 	j = -1;
-	if (!(tmp = (char*)malloc(sizeof(char) * ft_strlen(dest) + 2)))
+	if (!(tmp = (char*)ft_malloc(sizeof(char) * ft_strlen(dest) + 2)))
 		exit(-1);
 	while (dest[++j])
 		tmp[j] = dest[j];

@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   exec.h                                           .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/04/18 13:44:02 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/16 12:51:53 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/08 12:32:29 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -17,6 +17,7 @@
 # include <unistd.h>
 # include "builtin.h"
 # include <signal.h>
+# include <fcntl.h>
 
 # include "../libft/includes/ft_str.h"
 
@@ -28,6 +29,17 @@
 
 typedef struct s_lexeur	t_lexeur;
 typedef struct s_var	t_var;
+typedef struct s_pos	t_pos;
+
+typedef	struct			s_fd
+{
+	int					old_fd;
+	int					new_fd;
+	int					is_builtin;
+	int					error;
+	char				*token;
+	struct s_fd			*next;
+}						t_fd;
 
 typedef	struct			s_redirect
 {
@@ -58,7 +70,10 @@ typedef	struct			s_process
 	int					file_in;
 	int					file_out;
 	int					background;
+	char				*hash_error;
+	int					exec_builtin;
 	t_redirect			*redirect;
+	int					printed;
 }						t_process;
 
 typedef struct			s_job
@@ -88,6 +103,24 @@ typedef struct			s_save_job
 	struct s_save_job	*next;
 	struct s_save_job	*prev;
 }						t_save_job;
+
+typedef struct			s_pid_launch
+{
+	int					pid;
+	struct s_pid_launch	*next;
+	struct s_pid_launch	*prev;
+}						t_pid_launch;
+
+void					print_complete_process(t_process *p);
+
+/*
+**	ZOMBIE_C
+*/
+
+void					kill_zombie(t_pid_launch *spid, t_job_list *jb);
+void					free_pid_launch(void);
+void					remember_pid(int pid);
+t_pid_launch			*add_list_back_pid_launch(t_pid_launch *spid, int pid);
 
 /*
 **	NEW_JOB_C
@@ -122,7 +155,7 @@ int						start_exec(t_lexeur **res, t_var *var);
 **┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 */
 
-void					fill_process(t_job *j, t_lexeur **res);
+void					fill_process(t_job *j, t_lexeur **res, int i);
 void					fill_token(t_process *p, t_lexeur **res, int *i);
 
 /*
@@ -133,8 +166,7 @@ void					fill_token(t_process *p, t_lexeur **res, int *i);
 
 void					fill_process_split(t_job **j, t_lexeur **res, int i);
 char					*add_space_content(char *content);
-char					*get_content(char *tag, t_lexeur **res, int *t,
-						int *size);
+char					*get_content(char *tag, t_lexeur **res, int *t);
 void					make_tmp_great_again(t_redirect **tmp);
 void					add_heredoc(char *tag, t_lexeur **res, int *i);
 
@@ -147,7 +179,7 @@ void					add_heredoc(char *tag, t_lexeur **res, int *i);
 int						cnt_process(t_lexeur **res, int i);
 void					change_job(t_job **j, t_process **start);
 int						check_moove_index(t_lexeur **res, int *t);
-t_redirect				*init_var(int *done, int *t, int *i);
+t_redirect				*init_var(int *t, int *i);
 int						check_token_in_condition(t_lexeur **res, int t);
 /*
 **┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -175,7 +207,8 @@ int						go_next_token(t_lexeur **res, int *t);
 **┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 */
 
-void					launch_job(t_job *j, t_var *var);
+void					launch_job(t_job *j, t_var *var, t_pos *pos,
+						t_process *p);
 int						ft_test_path(t_process *p, t_var *var);
 
 /*
@@ -250,7 +283,9 @@ int						main_unalias(t_process *p, t_var **var);
 **┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 */
 void					add_alias(t_var **var, char *name, char *data);
-void					find_alias(t_process *p, t_var *var, int k);
+int						find_alias(t_process *p, int k);
+int						looking_for_aliases(t_process *p, int k,
+						char *name, char *data);
 void					add_list_alias(t_var **var, char *name, char *data);
 void					put_foreground(t_job *j, t_var **var, t_process *p);
 void					put_background(t_job *j);
@@ -258,6 +293,7 @@ int						test_builtin(t_process *p);
 int						find_builtins(t_process *p, t_var **var);
 int						fork_simple(t_job *j, t_process *p, t_var **var,
 						char *cmd_path);
+int						ft_execute_function(char *path, char **arg, t_var *var);
 void					wait_process(t_var **var);
 void					print_start_process(t_job *j);
 void					check_zombie();
@@ -266,6 +302,8 @@ void					remove_job(int id, int i);
 void					set_job_status(pid_t id, char status);
 int						find_job_pgid(pid_t pgid);
 void					job_notification(t_var **var);
+void					update_status(t_var **var);
+
 int						mark_process_status(pid_t pid, int status, t_var **var);
 void					signal_handler();
 int						job_is_stoped(t_job *j);
@@ -287,7 +325,7 @@ void					free_job(t_job *j);
 int						duplication(t_redirect *redirect, int fd_in,
 						int fd_out);
 int						fd_right(char *path);
-void					free_job_list(void);
+void					free_job_list(int i);
 int						check_name(char *name);
 
 /*
@@ -305,4 +343,88 @@ int						check_process(t_var *var, t_process *p, t_job *j);
 t_process				*init_launch_job(t_job *j, int *infile);
 void					launch_simple_job(t_process *p, t_job *j, t_var **var);
 void					alert_job(t_job *j);
+void					fill_heredoc_init(t_lexeur **res, t_redirect *tmp,
+						int *t);
+int						launch_redirection_builtin(t_process *p);
+
+/*
+**	HANDLE_PROCESS_C
+*/
+
+int						launch_process(t_process *p, t_var *var, char *path);
+int						finish_process(t_process *p, t_var *var, char *path);
+
+/*
+**	BUILTIN_REDIRECTION_PREPARE_C
+*/
+
+int						check_fd_out_content_before_redirection(t_process *p,
+						t_redirect *redirect);
+int						is_all_num(char *str);
+
+/*
+**	REDIRECTION_AGGREGATOR_C
+*/
+
+void					init_fd_in_and_out(t_lexeur **res, int *t, t_redirect
+						*tmp);
+
+/*
+** REDIRECTION_DISPATCH_C
+*/
+
+char					*del_back_slash_and_quote_red(char *ar);
+void					get_all_redirections_done(t_process *p, t_pos *pos,
+						t_redirect *red, int is_builtin);
+void					redirect_heredoc(t_fd *fd, t_redirect *red);
+void					dispatch_redirection_with_token(t_fd *fd,
+						t_redirect *red, t_process *p);
+int						is_all_num(char *str);
+
+/*
+**	REDIRECTION_INIT_AND_NORMAL_C
+*/
+
+void					redirect_simple_right(t_fd *fd, t_redirect *red,
+						t_process *p);
+void					redirect_simple_left(t_fd *fd, t_redirect *red,
+						t_process *p);
+t_fd					*add_list_back_fd(t_fd *fd);
+void					init_fd_link(t_fd *ne);
+
+/*
+**	REDIRECTION_PIPE_AGGREGATOR_C
+*/
+
+void					init_pipe_redirection(t_pos *pos, t_process *p,
+						int is_builtin, t_fd *fd);
+void					end_pipe_redirection(t_pos *pos, t_process *p,
+						t_fd *fd, int is_builtin);
+void					redirect_aggregator_left(t_fd *fd, t_redirect *red,
+						t_process *p);
+void					redirect_aggregator_right(t_fd *fd, t_redirect *red,
+						t_process *p);
+void					redirect_aggregator_minus(t_fd *fd);
+
+/*
+**	REDIRECTION_APPLY_C
+*/
+
+void					final_change_fd_for_redirections(t_fd *fd, t_pos *pos);
+void					dup_fd_for_binaries(t_fd *fd);
+int						redirection_get_argument_file_fd(t_redirect *red,
+						char *file, t_process *p, int new_fd_out);
+int						redirection_find_file_fd(char *file, t_redirect *red,
+						t_process *p, t_fd *fd);
+void					free_process(t_process *ptr_p);
+
+/*
+**	REDIRECTION_FILES_RIGHTS_C
+*/
+
+int						check_splited_folds(char *act_fold, char **path, int i,
+						t_process *p);
+int						check_folders_rights(t_process *p, char *file, int i,
+						char *act_fold);
+
 #endif

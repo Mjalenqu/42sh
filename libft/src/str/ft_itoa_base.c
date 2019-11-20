@@ -5,8 +5,8 @@
 /*                                                 +:+:+   +:    +:  +:+:+    */
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
-/*   Created: 2019/03/03 13:14:38 by shthevak     #+#   ##    ##    #+#       */
-/*   Updated: 2019/04/30 19:42:04 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Created: 2019/03/03 13:14:38 by mjalenqu     #+#   ##    ##    #+#       */
+/*   Updated: 2019/11/04 12:23:39 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -44,7 +44,7 @@ char		*ft_itoa_base(int nb, int base)
 	if (base <= 1)
 		return (NULL);
 	j = ft_intlen_base(nb, base);
-	if (!(r = malloc(sizeof(*r) * (j + 1))))
+	if (!(r = ft_malloc(sizeof(*r) * (j + 1))))
 		return (NULL);
 	r[j--] = '\0';
 	n = nb;

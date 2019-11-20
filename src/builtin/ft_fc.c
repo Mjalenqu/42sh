@@ -6,7 +6,7 @@
 /*   By: vde-sain <marvin@le-101.fr>                +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/06/08 11:18:28 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/11 15:51:31 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/17 17:01:50 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -100,6 +100,7 @@ int				ft_fc(t_process *p, t_var **var)
 {
 	t_fc	fc;
 	int		i;
+	int		ret;
 
 	init_fc_struct(&fc);
 	i = determ_fc_flags(&fc, p, 0, 1);
@@ -111,8 +112,9 @@ int				ft_fc(t_process *p, t_var **var)
 		if (fc.error == 0)
 			execute_fc_according_to_flags(&fc, var, p);
 	}
+	ret = get_value_of_cmd_return(fc, *var);
 	free_fc_struct(&fc);
 	if (fc.error == 0)
-		return (0);
+		return (ret);
 	return (1);
 }

@@ -25,7 +25,7 @@ char	*ft_strfsub(char *s, unsigned int start, size_t len)
 	k = 0;
 	if (s == NULL)
 		return (NULL);
-	if (!(str = malloc(sizeof(*str) * (len + 1))))
+	if (!(str = ft_malloc(sizeof(*str) * (len + 1))))
 		return (NULL);
 	while (s[i] && k++ < len)
 	{

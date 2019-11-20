@@ -21,7 +21,7 @@ char		*ft_strndup(char *s1, int n)
 	i = ft_strlen(s1);
 	if (n < i)
 		i = n;
-	if (!(tab = (char *)malloc(sizeof(char) * i + 1)))
+	if (!(tab = (char *)ft_malloc(sizeof(char) * i + 1)))
 		return (NULL);
 	i = 0;
 	while (s1[i] != '\0' && i < n)

@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/06 08:15:39 by rlegendr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 08:22:05 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/08 11:21:47 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -56,11 +56,26 @@ int		is_in_selection_area(int i, t_pos *pos)
 
 void	*to_stock(void *stock, int usage)
 {
-	static t_pos	*pos = NULL;
+	static t_pos		*pos = NULL;
+	static t_process	*p = NULL;
+	static t_hist		*hist = NULL;
+	static t_pid_launch	*spid = NULL;
 
 	if (usage == 0)
 		pos = stock;
 	else if (usage == 1)
 		return (pos);
+	else if (usage == 2)
+		p = stock;
+	else if (usage == 3)
+		return (p);
+	else if (usage == 4)
+		hist = stock;
+	else if (usage == 5)
+		return (hist);
+	else if (usage == 6)
+		spid = stock;
+	else if (usage == 7)
+		return (spid);
 	return (NULL);
 }

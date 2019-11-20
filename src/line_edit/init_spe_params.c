@@ -36,7 +36,7 @@ t_var		*init_spe_params(char **av)
 	t_var	*env;
 
 	i = 0;
-	save = malloc(sizeof(t_var));
+	save = ft_malloc(sizeof(t_var));
 	env = save;
 	spe = ft_strdup("0?$!_");
 	while (spe[i])
@@ -49,7 +49,7 @@ t_var		*init_spe_params(char **av)
 		i++;
 		if (spe[i])
 		{
-			save->next = malloc(sizeof(t_var));
+			save->next = ft_malloc(sizeof(t_var));
 			save = save->next;
 		}
 	}

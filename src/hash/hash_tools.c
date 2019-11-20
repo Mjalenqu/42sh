@@ -73,7 +73,7 @@ void				init_hash_links(t_hash **hash)
 	key = 0;
 	while (key < NB_KEY)
 	{
-		hash[key] = (t_hash*)malloc(sizeof(t_hash));
+		hash[key] = (t_hash*)ft_malloc(sizeof(t_hash));
 		hash[key]->path = NULL;
 		hash[key]->exec = NULL;
 		hash[key]->hit = 0;
@@ -89,7 +89,7 @@ void				init_single_link(t_hash *hash, char *arg, char *path)
 	hash->path = ft_strdup(path);
 	hash->exec = ft_strdup(arg);
 	hash->hit = 1;
-	tmp = (t_hash*)malloc(sizeof(t_hash));
+	tmp = (t_hash*)ft_malloc(sizeof(t_hash));
 	tmp->path = NULL;
 	tmp->exec = NULL;
 	tmp->hit = 0;

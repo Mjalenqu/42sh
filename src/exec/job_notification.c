@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/08/22 16:43:45 by husahuc      #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 10:27:41 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/08 12:57:50 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -21,15 +21,15 @@ void		update_status(t_var **var)
 
 	pid = waitpid(WAIT_ANY, &status, WUNTRACED | WNOHANG);
 	while (!mark_process_status(pid, status, var))
-	{
 		pid = waitpid(WAIT_ANY, &status, WUNTRACED | WNOHANG);
-	}
 }
 
 int			job_is_completed(t_job *j)
 {
 	t_process	*p;
 
+	if (!j || !j->p)
+		return (0);
 	p = j->p;
 	while (p)
 	{
@@ -37,6 +37,7 @@ int			job_is_completed(t_job *j)
 			return (0);
 		p = p->next;
 	}
+	j->status = 'f';
 	return (1);
 }
 
@@ -47,13 +48,13 @@ int			job_is_stoped(t_job *j)
 	p = j->p;
 	while (p)
 	{
-		if (p->stoped == 0)
+		if (p->stoped == STOPED)
 		{
-			return (0);
+			return (1);
 		}
 		p = p->next;
 	}
-	return (1);
+	return (0);
 }
 
 t_job_list	*job_notification_while(t_job_list *job_list, t_job_list **last)

@@ -22,7 +22,7 @@ char			*ft_itoa_base_uns(unsigned long long nb, int base)
 	i = 0;
 	if (nb == 0)
 		return (ft_strdup("0"));
-	if (!(ans = (char*)malloc(sizeof(char) * 65)))
+	if (!(ans = (char*)ft_malloc(sizeof(char) * 65)))
 		return (NULL);
 	while (nb != 0)
 	{

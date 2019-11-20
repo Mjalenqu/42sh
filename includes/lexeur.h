@@ -6,7 +6,7 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/03/22 13:50:20 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/16 12:51:02 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/05 17:34:22 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -155,7 +155,7 @@ char					*ft_del_simple_quote(char *word);
 
 void					fill_struct(t_lexeur *res, char *word,
 						enum e_token token, char *red);
-t_lexeur				*fill_lex_while(char *buf, int *i, int token);
+t_lexeur				*fill_lex_while(char **buf, int *i, int token);
 t_lexeur				*fill_lex_redirection(char **buf,
 						int *i, enum e_token token);
 void					fill_lex_heredoc(t_lexeur ***array, int *j,
@@ -180,7 +180,6 @@ void					fill_struct(t_lexeur *res, char *word,
 						enum e_token token, char *red);
 t_lexeur				*fill_lex_redirection(char **buf, int *i,
 						enum e_token token);
-t_lexeur				*fill_lex_while(char *buf, int *i, int token);
 
 /*
 **┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -199,7 +198,9 @@ char					*change_buf(char *buf);
 void					fill_lex_solve_back_slash(char *buf, int *i,
 						int *start);
 void					cnt_solve_back_slash(char *buf, int *i, int *cnt);
-void					del_back_slash(char ***ar);
+char					*browse_back_slash_and_quote(char *str, int i, int j,
+						char *res);
+char					**del_back_slash_and_quote(char **ar);
 
 /*
 **┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -218,7 +219,7 @@ void					del_back_slash_end(char ***ar);
 void					cnt_solve_back_slash(char *buf, int *i, int *cnt);
 int						back_slash_count(char *str);
 int						del_back_slash_simple_quote(int *k, int j, char ***ar);
-int						del_back_slash_double_quote(int *k, int j, char ***ar);
+char					*del_back_slash_double_quote(char *str);
 
 /*
 **┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -313,7 +314,7 @@ void					heredoc_go_next_quote(char *str, int *i);
 void					free_replace(t_replace *replace);
 void					init_replace(t_replace **replace);
 void					*get_replace(void *stock, int i);
-void					replace_alias(t_alias *alias, t_var *var,
+int						replace_alias(t_alias *alias, t_var *var,
 						t_replace *replace);
 
 /*
@@ -326,8 +327,19 @@ void					remoove_quote(char ***array);
 int						check_tok(t_alias *alias, t_var *var,
 						t_replace *replace);
 void					free_alias(t_alias *alias);
-int						remove_env_while(t_alias *alias, t_var *var,
-						t_replace *replace);
+int						remove_env_while(t_alias *alias, t_var *var);
 void					print_lexer(t_lexeur *lex);
+char					*remove_simple_quote(char **str);
+char					*fill_redirection_heredoc(char **buf, int *i);
+int						find_second_char(char *str, int *i);
+void					check_quote_simple(char *str, int *i,
+						int *quote_simple);
+void					check_quote_double(char *str, int *i,
+						int *quote_double);
+void					solve_quote_simple(char *str, char **res, int *i,
+						int j);
+char					*replace_var_to_data(char *str, t_var *env);
+int						check_last_space(char *str);
+void					check_next(t_alias *alias, t_var *var, t_replace *r);
 
 #endif

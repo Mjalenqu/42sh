@@ -6,7 +6,7 @@
 /*   By: vde-sain <marvin@le-101.fr>                +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/06/08 18:32:18 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/07 07:43:18 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/21 14:42:25 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -32,7 +32,7 @@ static void		check_flags_errors(t_fc *fc, t_process *p, int i, int j)
 {
 	if (j < ft_strlen(p->cmd[i]) && ft_strchr(fc->flags, 'e') == NULL)
 	{
-		ft_printf_err("%s: fc: -%c: invalid option\n", TERM, p->cmd[i][j]);
+		ft_printf_err_fd("%s: fc: -%c: invalid option\n", TERM, p->cmd[i][j]);
 		print_fc_usage();
 		fc->error = 1;
 	}
@@ -43,14 +43,14 @@ static void		check_flags_errors(t_fc *fc, t_process *p, int i, int j)
 		if (!p->cmd[i + 1] &&
 			find_flags_order(fc, 'e', '\0', 0) == ft_strlen(fc->flags) - 1)
 		{
-			ft_printf_err("%s: fc: -e: option requires an argument\n", TERM);
+			ft_printf_err_fd("%s: fc: -e: option requires an argument\n", TERM);
 			print_fc_usage();
 		}
 		else
 		{
 			while (j > 0 && p->cmd[i][j - 1] != 'e')
 				j--;
-			ft_printf_err("%s: fc: %s: command not found\n", TERM,
+			ft_printf_err_fd("%s: fc: %s: command not found\n", TERM,
 					p->cmd[i] + j);
 		}
 	}

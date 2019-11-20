@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   alias_tools.c                                    .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/06/08 17:32:27 by mjalenqu     #+#   ##    ##    #+#       */
-/*   Updated: 2019/09/23 09:47:08 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/01 15:21:45 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -55,4 +55,17 @@ int			end(char **str)
 	while (str[i])
 		i++;
 	return (i + 1);
+}
+
+int			check_last_space(char *str)
+{
+	int i;
+
+	i = 0;
+	while (str[i])
+		i++;
+	i--;
+	if (str[i] == ' ')
+		return (1);
+	return (0);
 }

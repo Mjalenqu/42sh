@@ -6,12 +6,27 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/16 17:39:51 by rlegendr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/03 07:31:18 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/25 16:10:57 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
 #include "termcaps.h"
+
+int				scan_ans_current_file(int *passed_exe, int *ret, int i,
+				t_pos *pos)
+{
+	*passed_exe = 1;
+	*ret = 0;
+	while (i < pos->let_nb && pos->ans[i] && pos->ans[i] != 32)
+		i++;
+	if (pos->ans[i] == 32)
+	{
+		*passed_exe = 2;
+		*ret = 1;
+	}
+	return (i);
+}
 
 static char		*get_env_path(t_var *env)
 {
@@ -73,7 +88,7 @@ static char		*get_name(t_pos *pos, int i, int j)
 	while (pos->ans[j] && pos->ans[j] != '|' &&
 		pos->ans[j] != '&' && pos->ans[j] != 32)
 		j += 1;
-	name = malloc(j - i + 1);
+	name = ft_malloc(j - i + 1);
 	name[j - i] = '\0';
 	ft_strncpy(name, pos->ans + i, j - i);
 	return (name);

@@ -6,7 +6,7 @@
 #    By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+      #
 #                                                  #+#   #+    #+    #+#       #
 #    Created: 2019/02/25 12:55:34 by mjalenqu     #+#   ##    ##    #+#        #
-#    Updated: 2019/10/17 09:53:06 by mjalenqu    ###    #+. /#+    ###.fr      #
+#    Updated: 2019/11/05 15:04:16 by mjalenqu    ###    #+. /#+    ###.fr      #
 #                                                          /                   #
 #                                                         /                    #
 # **************************************************************************** #
@@ -19,10 +19,12 @@ BLUE=\033[0;38;5;123m
 LIGHT_PINK = \033[0;38;5;200m
 PINK = \033[0;38;5;198m
 DARK_BLUE = \033[1;38;5;110m
-GREEN = \033[0;38;5;111m
+GREEN = \033[1;32;111m
 LIGHT_GREEN = \033[1;38;5;121m
 LIGHT_RED = \033[0;38;5;110m
 FLASH_GREEN = \033[33;32m
+WHITE_BOLD = \033[37m
+
 # **************************************************************************** #
 #									PATH                                       #
 # **************************************************************************** #
@@ -63,8 +65,8 @@ SSRC_NAME = ft_bzero.c ft_isalpha.c ft_isascii.c ft_itoa.c ft_itoa_base.c\
 			ft_strstr.c ft_strsub.c ft_strfsub.c ft_voidrev.c ft_voidswap.c ft_put_space.c\
 			ft_strsplit.c ft_free_tab.c get_next_line.c ft_putcolor.c ft_putcolor2.c ft_isspace.c\
 			ft_strncpy.c ft_strjoinf.c ft_strchr.c ft_strcapitalizer.c ft_copy_part_str.c\
-			ft_swap_let_string.c ft_strrev.c ft_secure_free.c ft_strndup.c\
-			ft_strstr_case_unsensitive.c ft_strncmp_case_unsensitive.c ft_strfdup.c
+			ft_swap_let_string.c ft_strrev.c ft_secure_free.c ft_strndup.c ft_isalnum_underscore.c\
+			ft_strstr_case_unsensitive.c ft_strncmp_case_unsensitive.c ft_strfdup.c ft_isalnum.c
 
 UINC_NAME = ft_unix.h
 USRC_NAME = ft_terminal_h.c ft_terminal_w.c ft_file_exists.c ft_create_file.c\
@@ -77,7 +79,7 @@ ISRC_NAME = ft_atoi.c ft_int_len_base.c ft_isdigit.c ft_isxdigit.c ft_putnbr.c\
 
 MINC_NAME = ft_mem.h
 MSRC_NAME = ft_memset.c ft_memccpy.c ft_memchr.c ft_memcmp.c ft_memcpy.c\
-			ft_memdel.c ft_memmove.c ft_free_void.c ft_tabdel.c
+			ft_memdel.c ft_memmove.c ft_free_void.c ft_tabdel.c ft_malloc.c
 
 PINC_NAME = ft_printf.h
 PSRC_NAME = add_conversion.c add_flag2.c add_flags.c bonus_conversion_type_1.c\
@@ -125,50 +127,47 @@ PEINC = $(addprefix $(INC_PATH), $(PEINC_NAME))
 #  									FLAG                                       #
 # **************************************************************************** #
 
-FLAGS = -Wall -Werror -Wextra -O3 -g3 -fsanitize=address#-fsanitize=undefined 
+FLAGS = -Wall -Werror -Wextra -O3 -g3 #-fsanitize=address#-fsanitize=undefined 
 
 # **************************************************************************** #
 # 									REGLES                                     #
 # **************************************************************************** #
 
-all : $(OBJ_PATH) $(NAME)
+all : $(NAME)
 
 $(NAME): $(SOBJ) $(UOBJ) $(IOBJ) $(LOBJ) $(MOBJ) $(POBJ) $(PEOBJ)
 	@ar rcs $(NAME) $(SOBJ) $(UOBJ) $(IOBJ) $(LOBJ) $(MOBJ) $(POBJ) $(PEOBJ)
-	@echo "\n$(DARK_BLUE)libft loaded\033[0m"
-
-$(OBJ_PATH):
-	@mkdir -p $(OBJ_PATH) 2> /dev/null
-	@mkdir -p $(SOBJ_PATH) 2> /dev/null
-	@mkdir -p $(UOBJ_PATH) 2> /dev/null
-	@mkdir -p $(IOBJ_PATH) 2> /dev/null
-	@mkdir -p $(MOBJ_PATH) 2> /dev/null
-	@mkdir -p $(POBJ_PATH) 2> /dev/null
-	@mkdir -p $(PEOBJ_PATH) 2> /dev/null
+	@echo "	\033[2K\r$(DARK_BLUE)libft:	$(GREEN)loaded\033[0m"
 
 $(SOBJ_PATH)%.o: $(SSRC_PATH)%.c $(SINC)
+	@if test ! -d $(dir $@); then mkdir -p $(dir $@); fi
 	@gcc $(FLAGS) -I $(INC_PATH) -o $@ -c $<
-	@echo "$(DARK_BLUE).\c"
+	@printf "\033[2K\r$(DARK_BLUE)libft:	\033[37m$<\033[36m \033[0m"
 
 $(UOBJ_PATH)%.o: $(USRC_PATH)%.c $(UINC)
+	@if test ! -d $(dir $@); then mkdir -p $(dir $@); fi
 	@gcc $(FLAGS) -I $(INC_PATH) -o $@ -c $<
-	@echo "$(DARK_BLUE).\c"
+	@printf "\033[2K\r$(DARK_BLUE)libft:	\033[37m$<\033[36m \033[0m"
 
 $(IOBJ_PATH)%.o: $(ISRC_PATH)%.c $(IINC)
+	@if test ! -d $(dir $@); then mkdir -p $(dir $@); fi
 	@gcc $(FLAGS) -I $(INC_PATH) -o $@ -c $<
-	@echo "$(DARK_BLUE).\c"
+	@printf "\033[2K\r$(DARK_BLUE)libft:	\033[37m$<\033[36m \033[0m"
 
 $(MOBJ_PATH)%.o: $(MSRC_PATH)%.c $(MINC)
+	@if test ! -d $(dir $@); then mkdir -p $(dir $@); fi
 	@gcc $(FLAGS) -I $(INC_PATH) -o $@ -c $<
-	@echo "$(DARK_BLUE).\c"
+	@printf "\033[2K\r$(DARK_BLUE)libft:	\033[37m$<\033[36m \033[0m"
 
 $(POBJ_PATH)%.o: $(PSRC_PATH)%.c $(PINC)
+	@if test ! -d $(dir $@); then mkdir -p $(dir $@); fi
 	@gcc $(FLAGS) -I $(INC_PATH) -o $@ -c $<
-	@echo "$(DARK_BLUE).\c"
+	@printf "\033[2K\r$(DARK_BLUE)libft:	\033[37m$<\033[36m \033[0m"
 
 $(PEOBJ_PATH)%.o: $(PESRC_PATH)%.c $(PEINC)
+	@if test ! -d $(dir $@); then mkdir -p $(dir $@); fi
 	@gcc $(FLAGS) -I $(INC_PATH) -o $@ -c $<
-	@echo "$(DARK_BLUE).\c"
+	@printf "\033[2K\r$(DARK_BLUE)libft:	\033[37m$<\033[36m \033[0m"
 
 clean:
 	@rm -rf $(OBJ_PATH)

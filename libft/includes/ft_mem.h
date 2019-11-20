@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   ft_mem.h                                         .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: shthevak <marvin@le-101.fr>                +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
-/*   Created: 2019/03/23 16:06:35 by shthevak     #+#   ##    ##    #+#       */
-/*   Updated: 2019/05/29 10:09:51 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Created: 2019/03/23 16:06:35 by mjalenqu     #+#   ##    ##    #+#       */
+/*   Updated: 2019/11/04 12:23:39 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -21,6 +21,7 @@
 # include "ft_printf.h"
 # include "ft_printf_err.h"
 
+void	*ft_malloc(size_t size);
 void	*ft_memset(void *mem, int c, size_t l);
 void	*ft_memccpy(void *dst, const void *src, int c, size_t n);
 void	*ft_memchr(const void *s, int c, size_t n);

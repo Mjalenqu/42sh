@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   ft_str_remove_index.c                            .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: shthevak <marvin@le-101.fr>                +:+   +:    +:    +:+     */
+/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
-/*   Created: 2019/03/09 13:43:28 by shthevak     #+#   ##    ##    #+#       */
-/*   Updated: 2019/03/11 13:07:27 by shthevak    ###    #+. /#+    ###.fr     */
+/*   Created: 2019/03/09 13:43:28 by mjalenqu     #+#   ##    ##    #+#       */
+/*   Updated: 2019/11/04 12:23:39 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -26,6 +26,5 @@ char	*ft_strrmvi(char *str, int i)
 		if (i + 1 < ft_strlen((const char *)str))
 			ft_strjoin_free(&ret, str + i + 1);
 	}
-	ft_strdel(&str);
 	return (ret);
 }

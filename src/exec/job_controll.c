@@ -3,16 +3,27 @@
 /*                                                              /             */
 /*   job_controll.c                                   .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/21 14:45:30 by husahuc      #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/14 16:16:05 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/04 12:01:56 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
 #include "../../includes/exec.h"
 #include "../../includes/termcaps.h"
+
+int			process_printed(t_process *p)
+{
+	while (p)
+	{
+		if (p->printed == 1)
+			return (1);
+		p = p->next;
+	}
+	return (0);
+}
 
 void		process_status(t_process *process, t_job_list *job_list, int status,
 			t_var **var)
@@ -22,13 +33,13 @@ void		process_status(t_process *process, t_job_list *job_list, int status,
 		job_list->j->status = 's';
 		process->stoped = STOPED;
 		job_list->j->notified = 1;
-		print_job(job_list->j);
+		if (process_printed(job_list->j->p) == 0)
+			print_job(job_list->j);
 	}
 	else
 	{
 		if (WIFSIGNALED(status))
-			ft_printf_err("terminated by signal %d\n", WTERMSIG(status));
-		job_list->j->status = 'f';
+			ft_printf_err("Terminated by signal %d\n", status);
 		process->completed = FINISHED;
 		process->ret = WEXITSTATUS(status);
 		add_list_env(var, SPE, ft_strdup("?"), ft_itoa(process->ret));
@@ -60,20 +71,6 @@ int			mark_process_status(pid_t pid, int status, t_var **var)
 		}
 	}
 	return (-1);
-}
-
-void		print_start_process(t_job *j)
-{
-	t_process	*p;
-
-	p = j->p;
-	ft_printf("[%d]", j->id);
-	while (p)
-	{
-		ft_printf(" %d", p->pid);
-		p = p->next;
-	}
-	ft_putchar('\n');
 }
 
 void		wait_process(t_var **var)

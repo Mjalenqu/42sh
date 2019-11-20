@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/03/28 09:15:13 by mjalenqu     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/17 09:51:50 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/12 13:24:19 by rlegendr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -20,6 +20,7 @@
 # include "../libft/includes/ft_printf.h"
 # include "../libft/includes/ft_mem.h"
 # include "../libft/includes/ft_printf_err.h"
+# include "../libft/includes/ft_printf.h"
 # include "exec.h"
 # include "check_error.h"
 # include "builtin.h"
@@ -72,7 +73,7 @@
 # define RESIZING	28
 # define CTRL_C		2
 
-extern struct s_hist	**ghist;
+typedef struct s_pid_launch	t_pid_launch;
 
 typedef struct			s_heredoc
 {
@@ -121,6 +122,15 @@ typedef struct			s_pos
 	char				*pwd;
 	struct s_heredoc	*hdoc;
 	int					braceparam;
+	int					shtheme;
+	int					ret;
+	int					act_fd_out;
+	int					act_fd_error;
+	int					separator;
+	int					pipe;
+	int					tab_key_printed;
+	int					exit_mode;
+	int					error_printed;
 }						t_pos;
 
 typedef struct			s_htab
@@ -182,12 +192,39 @@ typedef struct			s_ctrl_hist
 	int					act_li;
 }						t_ctrl_hist;
 
+void					*ft_malloc(size_t size);
+void					print_hdoc(t_heredoc *hdoc);
 char					*check_path_hash(t_var **var, char *arg, int i,
 						char *ans);
-void					print_info(t_pos *pos);
+void					print_info(t_pos *pos, int usage);
+void					print_info2(t_pos *pos);
 void					print_hist(t_pos *pos, t_hist *hist);
 int						got_a_wildcard(char *name);
 int						check_ans(char *str);
+void					print_htab_debug(t_htab *htab);
+void					print_all_env(t_var *var);
+
+/*
+**	RESIZE_C
+*/
+
+void					resize_screen(t_pos *pos);
+
+/*
+**	PRINT_PROMPT_C
+*/
+
+void					print_first_prompt(t_pos *pos);
+void					print_second_prompt(t_pos *pos);
+
+void					print_all_env(t_var *var);
+
+/*
+**	PRINT_PROMPT_C
+*/
+
+void					print_first_prompt(t_pos *pos);
+void					print_second_prompt(t_pos *pos);
 
 /*
 **	INIT_POS_MAIN_C
@@ -215,6 +252,7 @@ void					error_handling(t_pos *pos, char *variable, int err);
 ** CHECK_ERROR_C
 */
 
+void					*ft_malloc(size_t size);
 int						check_term(void);
 int						check_if_process_in_bg(t_pos *pos,
 						unsigned char buf[9]);
@@ -336,6 +374,8 @@ t_htab					*looking_for_current(t_pos *pos, t_htab *htab,
 ** TAB_KEY_ALL_PATH
 */
 
+int						scan_ans_current_file(int *passed_exe, int *ret,
+						int i, t_pos *pos);
 t_htab					*looking_for_all(t_pos *pos, t_htab *htab, char **name);
 
 /*
@@ -386,6 +426,7 @@ t_htab					*get_intelligent_match(t_htab *htab, char *name);
 ** TAB_KEY_AUTO_COMPLETE_FOR_TILDE_C
 */
 
+void					finish_auto_complete(t_pos *pos);
 void					reduce_ans_for_tilde(t_pos *pos, char *name);
 int						get_length_of_home_env(t_var *env);
 
@@ -446,7 +487,7 @@ void					jump_up(t_pos *pos);
 /*
 ** HISTORY_EXPANSION.C
 */
-void					check_history_expansion(t_pos *pos, t_hist *hist, int i,
+int						check_history_expansion(t_pos *pos, t_hist *hist, int i,
 						int error);
 int						replace_expansion_by_value(t_pos *pos, t_hist *hist,
 						int i, int error);
@@ -504,7 +545,7 @@ t_var					*init_env(char **env, t_pos *pos, char **av, int i);
 char					*init_name(char *src);
 void					free_env(t_var *ptr_env);
 char					*init_data(char *src);
-void					shlvl(t_var *env);
+void					shlvl(t_var *env, int ac, char **av);
 
 /*
 *******************************************************************************
@@ -568,6 +609,7 @@ void					get_pos_coordinates_right_again(t_pos *pos);
 ** CHECK_FOR_TILDE_C
 */
 
+int						verif_tilde(char *ans, int i);
 char					*check_for_tilde(char *ans, t_var *env, int i,
 						int usage);
 void					check_copy(unsigned char *buf, t_pos *pos);
@@ -576,13 +618,15 @@ void					check_copy(unsigned char *buf, t_pos *pos);
 ** CHECK_BACKSLASH_C
 */
 
+int						count_valid_backslash(int i, char *ans);
 int						odd_backslash(int i, char *ans);
-char					*check_backslash(t_pos *pos);
+char					*check_backslash(t_pos *pos, int i, int j, int count);
 
 /*
 **	TOKEN_C
 */
 
+int						add_space(t_pos *pos, int *i);
 int						token_condition(char *ans, int i);
 int						token(char *ans, t_pos *pos);
 
@@ -590,6 +634,8 @@ int						token(char *ans, t_pos *pos);
 **	TOKEN_CONDITIONS_C
 */
 
+int						is_my_index_open(t_pos *pos, int i, char open,
+						int limit);
 int						simple_pipe(char *ans, int i);
 int						double_token(char *ans, int i);
 int						brace_param(char *ans, int i);
@@ -602,7 +648,8 @@ int						double_quote(char *ans, int i);
 
 void					check_for_heredoc(t_pos *pos, int i, char open);
 void					search_for_heredocs_in_ans(t_pos *pos, int i, int open);
-int						fill_hdoc_content(t_pos *pos, char *ans, int i);
+int						fill_hdoc_content(t_pos *pos, char *ans, int i,
+						char *tmp);
 int						heredoc_found(t_pos *pos, int i, int j);
 
 /*
@@ -619,7 +666,7 @@ int						check_if_to_find_is_not_empty(t_heredoc *hdoc);
 **	HEREDOC_TOOLS_C
 */
 
-char					*remove_backslash(char *ans);
+char					*remove_backslash(char *ans, int i, int j);
 int						going_to_heredoc_end(t_pos *pos, int i);
 void					free_hdoc(t_heredoc *hdoc);
 t_heredoc				*add_list_back_heredoc(t_heredoc *heredoc);
@@ -631,5 +678,26 @@ void					init_t_heredoc(t_heredoc *hdoc);
 
 t_var					*init_spe_params(char **av);
 void					*to_stock(void *stock, int usage);
+
+/*
+**	FT_PRINTF_FD_C
+*/
+
+int						ft_printf_fd(const char *format, ...);
+int						print_printf_fd(t_data *data, int i, int fd);
+int						iterating_through_output_fd(t_data *data,
+						int *printed_backslash, int i, int fd);
+int						handle_colors_fd(t_data *d, int i, int tmp, int fd);
+
+/*
+**	FT_PRINTF_FD_C
+*/
+
+int						ft_printf_err_fd(const char *format, ...);
+int						print_printf_err_fd(t_dataerr *data, int i, int fd);
+int						iterating_through_output_err_fd(t_dataerr *data,
+						int *printed_backslash, int i, int fd);
+int						handle_colors_err_fd(t_dataerr *d, int i, int tmp,
+						int fd);
 
 #endif

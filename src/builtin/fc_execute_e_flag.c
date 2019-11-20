@@ -6,7 +6,7 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/06/25 08:56:49 by vde-sain     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 08:28:44 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/11 13:44:20 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -42,19 +42,17 @@ static int			fill_command_to_send_to_text_editor(t_fc *fc, t_hist *hist,
 	return (fd);
 }
 
-char				**recover_new_cmds_from_tmp(char **new_cmds, int fd, int i,
-					int ret)
+char				**recover_new_cmds_from_tmp(char **new_cmds, int fd,
+					int ret, char *line)
 {
-	char			*line;
 	t_hist			*hist;
 	char			*pwd;
+	t_fc_list		*fc_list;
+	t_fc_list		*head;
 
+	fc_list = NULL;
+	head = NULL;
 	hist = stock(NULL, 8);
-	if (hist->cmd_no > 20)
-		new_cmds = (char**)malloc(sizeof(char*) * ((hist->cmd_no + 1) * 2));
-	else
-		new_cmds = (char**)malloc(sizeof(char*) * 50 + 1);
-	line = NULL;
 	pwd = ft_strjoinf(getcwd(NULL, 255), "/.tmp", 1);
 	fd = open(pwd, O_RDWR | O_APPEND | O_CREAT, 0666);
 	while ((ret = get_next_line(fd, &line)))
@@ -62,39 +60,44 @@ char				**recover_new_cmds_from_tmp(char **new_cmds, int fd, int i,
 		if (ft_strlen(line) > 0)
 		{
 			transform_tab_into_space(line);
-			new_cmds[i] = ft_strnew(0);
-			new_cmds[i] = ft_strjoinf(new_cmds[i], line, 3);
-			i++;
+			fc_list = add_list_back_fc_list(fc_list, line);
+			if (head == NULL)
+				head = fc_list;
 		}
+		ft_strdel(&line);
 	}
-	new_cmds[i] = NULL;
+	new_cmds = convert_fc_list_to_tab(head);
+	unlink(pwd);
 	free(pwd);
 	return (new_cmds);
 }
 
-void				exec_new_cmds(char **new_cmds)
+void				exec_new_cmds(char **new_cmds, int i, t_hist *hist,
+					t_var *var)
 {
-	int				i;
 	char			*tmp_cmd;
-	t_hist			*hist;
-	t_var			*var;
 
-	var = stock(NULL, 6);
-	hist = stock(NULL, 8);
-	i = 0;
-	i = 0;
 	while (new_cmds[i])
 	{
 		var = stock(NULL, 6);
 		tmp_cmd = ft_strdup(new_cmds[i]);
-		if ((check_error(new_cmds[i])) != -1)
+		if (token(new_cmds[i], to_stock(NULL, 1)) && valid_heredocs(new_cmds[i],
+			0, -1) && (check_error(new_cmds[i])) != -1 &&
+			ft_strstr(new_cmds[i], "fc ") == NULL)
 		{
-			ft_printf("%s\n", tmp_cmd);
+			ft_printf_fd("%s\n", tmp_cmd);
 			start_exec(start_lex(stock(NULL, 6), tmp_cmd), stock(NULL, 6));
+			place_new_cmds_in_history(new_cmds[i], hist);
+		}
+		else
+		{
+			ft_printf_err_fd("%s\n", tmp_cmd);
+			ft_printf_err_fd("42sh: fc: bad command\n");
+			ft_free_void(tmp_cmd, new_cmds[i], NULL, NULL);
 		}
 		i++;
 	}
-	place_new_cmds_in_history(new_cmds, hist);
+	free(new_cmds);
 }
 
 void				exec_ide_with_tmp_file(t_fc *fc, int fd, char **env)
@@ -102,13 +105,11 @@ void				exec_ide_with_tmp_file(t_fc *fc, int fd, char **env)
 	char			**arg_tmp;
 	pid_t			father;
 	char			**new_cmds;
-	int				i;
 	int				ret;
 
-	i = 0;
 	ret = 1;
 	father = fork();
-	arg_tmp = (char**)malloc(sizeof(char*) * 3);
+	arg_tmp = (char**)ft_malloc(sizeof(char*) * 3);
 	arg_tmp[0] = ft_strdup(fc->ename);
 	arg_tmp[1] = ft_strdup(".tmp");
 	arg_tmp[2] = NULL;
@@ -116,8 +117,8 @@ void				exec_ide_with_tmp_file(t_fc *fc, int fd, char **env)
 	if (father > 0)
 	{
 		wait(&father);
-		new_cmds = recover_new_cmds_from_tmp(new_cmds, fd, i, ret);
-		exec_new_cmds(new_cmds);
+		new_cmds = recover_new_cmds_from_tmp(new_cmds, fd, ret, NULL);
+		exec_new_cmds(new_cmds, 0, stock(NULL, 8), stock(NULL, 6));
 		ft_free_tab(arg_tmp);
 		return ;
 	}

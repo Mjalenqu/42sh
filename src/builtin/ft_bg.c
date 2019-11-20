@@ -6,18 +6,13 @@
 /*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/08/22 16:44:23 by husahuc      #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 09:14:16 by rlegendr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/11/04 12:23:19 by mjalenqu    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
 
 #include "../../includes/termcaps.h"
 #include "../../includes/exec.h"
-
-void			put_background(t_job *j)
-{
-	kill(-j->pgid, SIGCONT);
-}
 
 char			*find_split_process(t_process *p)
 {
@@ -31,7 +26,7 @@ char			*find_split_process(t_process *p)
 		return ("");
 }
 
-static void		iterate_through_list(t_job_list *jb, char *ans)
+static t_job	*iterate_through_list(t_job_list *jb, char *ans)
 {
 	char		*name;
 	t_job_list	*save;
@@ -46,25 +41,39 @@ static void		iterate_through_list(t_job_list *jb, char *ans)
 		{
 			change_plus_and_minus_indicators(jb, find_plus(save), save);
 			ft_strdel(&name);
-			return ;
+			return (jb->j);
 		}
 		ft_strdel(&name);
 		jb = jb->next;
 	}
-	ft_printf_err("42sh: bg: %s: no such job\n", ans);
+	ft_printf_err_fd("42sh: bg: %s: no such job\n", ans);
+	return (NULL);
 }
 
 t_job			*find_job_by_id_bg(char **cmd, int i)
 {
 	t_job		*j;
+	t_job		*save;
 	t_job_list	*jb;
+	int			check;
 
+	check = 0;
+	j = NULL;
+	save = NULL;
 	jb = stock(NULL, 10);
-	j = find_plus(jb);
 	if (cmd[i] == NULL)
-		return (j);
+		return (find_plus(jb));
 	while (cmd[i])
-		iterate_through_list(jb, cmd[i++]);
+	{
+		save = iterate_through_list(jb, cmd[i++]);
+		if (save)
+		{
+			check = 0;
+			j = save;
+		}
+	}
+	if (check != 0)
+		return (NULL);
 	return (j);
 }
 
@@ -88,7 +97,7 @@ int				ft_bg(t_process *p, t_var **var)
 		return (0);
 	}
 	else if (p->cmd[1] == NULL)
-		ft_printf_err("42sh: bg: no such job\n", p->fd_out);
+		ft_printf_err_fd("42sh: bg: no such job\n", p->fd_out);
 	var = NULL;
 	return (1);
 }

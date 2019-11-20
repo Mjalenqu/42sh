@@ -6,7 +6,7 @@
 /*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/05/09 10:52:26 by mdelarbr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 11:12:22 by mdelarbr    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/30 11:45:38 by mdelarbr    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -26,9 +26,11 @@ char	*get_tag(char *str, int *i)
 	j = (*i);
 	jump_space(str, &j);
 	s = j;
-	while (str[j] && ((str[j] < 9 || str[j] > 13) && str[j] != ' '))
+	while (str[j] && ((str[j] < 9 || str[j] > 13) && str[j] != ' '
+	&& find_token(str, j) == -1))
 		j++;
 	tag = ft_strsub(str, s, j - s);
+	(*i) = j;
 	return (tag);
 }
 
@@ -59,12 +61,11 @@ int		basic_split_while(int *tint, char *str, char **res, char **tag)
 		(*tag) = get_tag(str, &tint[0]);
 		tint[2] = 1;
 	}
-	else if (str[tint[0]] && ((str[tint[0]] >= '0' && str[tint[0]] <= '9') ||
-	(ret == 5 || ret == 8)))
+	else if (str[tint[0]] && ((str[tint[0]] >= '0' && str[tint[0]] <= '9')))
 		split_space_find_number(str, &tint[0]);
 	else if (search_agregator(str, tint[0]))
 		split_agregator(str, &tint[0]);
-	else
+	else if (!tint[2])
 		split_space_basic(str, &tint[0]);
 	res[tint[1]] = ft_strsub(str, start, (tint[0]) - start);
 	if (str[tint[0]] && (ret = find_token(str, tint[0])) != -1)
@@ -82,7 +83,7 @@ char	**split_space(char *str)
 	tint[1] = 0;
 	tint[2] = 0;
 	tag = NULL;
-	res = malloc(sizeof(char *) * (ft_strlen(str) + 2));
+	res = ft_malloc(sizeof(char *) * (ft_strlen(str) + 2));
 	while (str[tint[0]])
 	{
 		if (basic_split_while(tint, str, res, &tag) == 1)
@@ -101,7 +102,7 @@ void	list_add(t_replace **replace, char *array)
 	start = (*replace);
 	while ((*replace)->next)
 		(*replace) = (*replace)->next;
-	next = malloc(sizeof(t_replace));
+	next = ft_malloc(sizeof(t_replace));
 	next->name = ft_strdup(array);
 	next->next = NULL;
 	(*replace)->next = next;

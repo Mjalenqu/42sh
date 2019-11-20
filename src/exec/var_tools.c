@@ -77,7 +77,7 @@ int			check_cmd(char **str)
 
 void		add_local(t_var **var, char *str, t_var *prev, int type)
 {
-	(*var) = malloc(sizeof(t_var));
+	(*var) = ft_malloc(sizeof(t_var));
 	prev->next = (*var);
 	(*var)->next = NULL;
 	(*var)->name = init_name(str);

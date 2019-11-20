@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   heredoc_send_valid_ans.c                         .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: mdelarbr <mdelarbr@student.le-101.fr>      +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
 /*   Created: 2019/10/01 18:56:46 by rlegendr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/16 11:17:32 by vde-sain    ###    #+. /#+    ###.fr     */
+/*   Updated: 2019/10/31 11:01:16 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -45,6 +45,7 @@ void			heredoc_ctrl_d(t_pos *pos, t_hist **hist)
 	while (hdoc && hdoc->current_index == 1)
 		hdoc = hdoc->next;
 	hdoc->content = ft_strjoinf(hdoc->content, hdoc->to_find, 1);
+	hdoc->content = ft_strjoinf(hdoc->content, " ", 1);
 	hdoc->current_index = 1;
 	if (hdoc->next == NULL)
 	{
@@ -59,14 +60,14 @@ int				fill_ans_heredoc(t_pos *pos, int i, int j)
 	while (pos->ans[i])
 	{
 		if (pos->ans[i] == '<' && pos->ans[i + 1] == '<' &&
-			(i == 0 || (i > 0 && pos->ans[i - 1] != 92)))
+			(i == 0 || is_my_index_open(pos, 0, -1, i)) && add_space(pos, &i))
 			break ;
 		i += 1;
 	}
 	if (pos->ans[i])
 		i += 2;
 	while (pos->ans[i] && (pos->ans[i] == 32 || (pos->ans[i] >= 9 &&
-		pos->ans[i] <= 13)))
+					pos->ans[i] <= 13)))
 		i += 1;
 	if (pos->hdoc)
 		i += ft_strlen(pos->hdoc->to_find);
@@ -77,6 +78,8 @@ int				fill_ans_heredoc(t_pos *pos, int i, int j)
 	pos->ans_heredoc = ft_strjoinf(pos->ans_heredoc, " ", 1);
 	pos->ans_heredoc = ft_strjoinf(pos->ans_heredoc, pos->hdoc->content, 1);
 	pos->hdoc = pos->hdoc->next;
+	if (i > ft_strlen(pos->ans))
+		return (ft_strlen(pos->ans));
 	return (i);
 }
 

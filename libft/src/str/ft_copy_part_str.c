@@ -20,7 +20,7 @@ char			*copy_beginning_str(char *str, int i)
 
 	dest = NULL;
 	j = 0;
-	if (!(dest = (char*)malloc(sizeof(char) * i + 2)))
+	if (!(dest = (char*)ft_malloc(sizeof(char) * i + 2)))
 		return (NULL);
 	while (j <= i)
 	{
@@ -38,7 +38,7 @@ char			*copy_end_string(char *str, int i)
 
 	dest = NULL;
 	j = 0;
-	if (!(dest = (char*)malloc(sizeof(char) * (ft_strlen(str) - i) + 1)))
+	if (!(dest = (char*)ft_malloc(sizeof(char) * (ft_strlen(str) - i) + 1)))
 		return (NULL);
 	while (str[i])
 		dest[j++] = str[i++];

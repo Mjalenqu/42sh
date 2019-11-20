@@ -3,10 +3,10 @@
 /*                                                              /             */
 /*   ft_exit.c                                        .::    .:/ .      .::   */
 /*                                                 +:+:+   +:    +:  +:+:+    */
-/*   By: mjalenqu <mjalenqu@student.le-101.fr>      +:+   +:    +:    +:+     */
+/*   By: rlegendr <marvin@le-101.fr>                +:+   +:    +:    +:+     */
 /*                                                 #+#   #+    #+    #+#      */
-/*   Created: 2019/09/27 17:46:07 by rlegendr     #+#   ##    ##    #+#       */
-/*   Updated: 2019/10/15 08:31:01 by mjalenqu    ###    #+. /#+    ###.fr     */
+/*   Created: 2019/11/08 12:06:56 by rlegendr     #+#   ##    ##    #+#       */
+/*   Updated: 2019/11/08 15:51:15 by vde-sain    ###    #+. /#+    ###.fr     */
 /*                                                         /                  */
 /*                                                        /                   */
 /* ************************************************************************** */
@@ -14,7 +14,7 @@
 #include "../../includes/builtin.h"
 #include "../../includes/exec.h"
 
-static void		write_alias_on_exit(t_var *var)
+void			write_alias_on_exit(t_var *var)
 {
 	t_pos *p;
 
@@ -34,16 +34,38 @@ static void		write_alias_on_exit(t_var *var)
 	}
 }
 
-void			free_pos(void)
+void			free_pos(t_pos *pos)
 {
-	t_pos *pos;
-
-	pos = to_stock(NULL, 1);
 	ft_strdel(&pos->prompt);
 	ft_strdel(&pos->path);
 	ft_strdel(&pos->ctrl_hist_cmd);
 	ft_strdel(&pos->saved_ans);
 	ft_strdel(&pos->pwd);
+}
+
+void			kill_last_job(t_job_list *jb, t_pos *pos, t_var *var,
+				t_save_job *save)
+{
+	int		check;
+
+	check = 0;
+	while (jb)
+	{
+		check += 1;
+		jb = jb->next;
+	}
+	if (check)
+		ft_printf_fd("There are stopped jobs.\n");
+	free_copy_job(save);
+	free_job_list(0);
+	free_hash_table();
+	free_pid_launch();
+	ft_printf_fd("exit\n");
+	write_alias_on_exit(var);
+	free_pos(pos);
+	free_t_hist(stock(NULL, 8));
+	free_env_list(var);
+	tcsetattr(0, TCSANOW, &pos->old_term);
 }
 
 void			free_env_list(t_var *var)
@@ -62,44 +84,31 @@ void			free_env_list(t_var *var)
 	}
 }
 
-int				check_if_letter(char *str)
-{
-	int		i;
-
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] < '0' || str[i] > '9')
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
 int				ft_exit(t_process *p, t_var **var)
 {
-	int	status;
+	t_pos	*pos;
+	int		status;
+	int		check;
+	int		i;
 
+	i = -1;
+	check = 0;
+	(void)var;
+	pos = to_stock(NULL, 1);
 	status = ft_atoi(p->cmd[1]);
 	if (p->cmd && p->cmd[1] && p->cmd[2])
 	{
-		ft_printf_err("42sh: exit: {B.T.red.}error{eoc}: Too many arguments\n");
+		ft_printf_err_fd("42sh: exit: error: Too many arguments\n");
 		return (1);
 	}
 	if (p->split == 'P' || p->fd_in != STDIN_FILENO)
-		return (status);
-	if (status < 0 || (p->cmd[1] && check_if_letter(p->cmd[1]) &&
-		(status = 255)))
-		ft_printf_err("42sh: exit: %s: numeric argument required\n", p->cmd[1]);
-	else
-	{
-		free_hash_table();
-		ft_printf("exit\n");
-	}
-	write_alias_on_exit(*var);
-	free_pos();
-	free_t_hist(stock(NULL, 8));
-	free_env_list(*var);
-	free_job_list();
-	exit(status);
+		return (1);
+	while (p->cmd[1] && p->cmd[1][++i])
+		if (p->cmd[1][i] < '0' || p->cmd[1][i] > '9')
+			check = 1;
+	if ((status < 0 || check) && (status = 255))
+		ft_printf_err_fd("42sh: exit: %s: numeric argument required\n",
+				p->cmd[1]);
+	pos->exit_mode = status;
+	return (status);
 }
